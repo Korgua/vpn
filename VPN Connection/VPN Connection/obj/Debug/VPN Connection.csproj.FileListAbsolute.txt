@@ -11,3 +11,14 @@ C:\git\vpn_connection\VPN Connection\VPN Connection\obj\Debug\VPN Connection.pdb
 C:\git\visual_studio\vpn_connection\VPN Connection\VPN Connection\bin\Debug\VPN Connection.exe.config
 C:\git\visual_studio\vpn_connection\VPN Connection\VPN Connection\obj\Debug\VPN Connection.exe
 C:\git\visual_studio\vpn_connection\VPN Connection\VPN Connection\obj\Debug\VPN Connection.pdb
+D:\git\visual_studio\vpn\VPN Connection\VPN Connection\bin\Debug\VPN Connection.exe.config
+D:\git\visual_studio\vpn\VPN Connection\VPN Connection\obj\Debug\VPN Connection.exe
+D:\git\visual_studio\vpn\VPN Connection\VPN Connection\obj\Debug\VPN Connection.pdb
+D:\git\visual_studio\vpn\VPN Connection\VPN Connection\bin\Debug\VPN Connection.exe
+D:\git\visual_studio\vpn\VPN Connection\VPN Connection\bin\Debug\VPN Connection.pdb
+D:\git\visual_studio\vpn\VPN Connection\VPN Connection\bin\Debug\DotRas.dll
+D:\git\visual_studio\vpn\VPN Connection\VPN Connection\bin\Debug\DotRas.xml
+D:\git\visual_studio\vpn\VPN Connection\VPN Connection\obj\Debug\VPN Connection.csprojResolveAssemblyReference.cache
+D:\git\visual_studio\vpn\VPN Connection\VPN Connection\obj\Debug\VPN_Connection.Properties.Resources.resources
+D:\git\visual_studio\vpn\VPN Connection\VPN Connection\obj\Debug\VPN Connection.csproj.GenerateResource.Cache
+D:\git\visual_studio\vpn\VPN Connection\VPN Connection\obj\Debug\VPN_Connection.Form1.resources
