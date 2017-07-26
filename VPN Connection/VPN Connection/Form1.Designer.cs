@@ -13,11 +13,11 @@ namespace VPN_Connection {
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void OnPaint(System.Windows.Forms.PaintEventArgs e)
-        {
+        /*{
             GraphicsPath wantedshape = new GraphicsPath();
             wantedshape.AddEllipse(25, 25, 25,25);
             this.Region = new Region(wantedshape);
-        }
+        }*/
         protected override void Dispose(bool disposing) {
             if(disposing && (components != null)) {
                 components.Dispose();
