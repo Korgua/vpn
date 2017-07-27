@@ -12,8 +12,8 @@ namespace VPN_Connection {
         /// Clean up any resources being used.
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void OnPaint(System.Windows.Forms.PaintEventArgs e)
-        /*{
+        /*protected override void OnPaint(System.Windows.Forms.PaintEventArgs e)
+        { 
             GraphicsPath wantedshape = new GraphicsPath();
             wantedshape.AddEllipse(25, 25, 25,25);
             this.Region = new Region(wantedshape);
@@ -34,6 +34,7 @@ namespace VPN_Connection {
         private void InitializeComponent() {
             this.vpnConnect = new System.Windows.Forms.Button();
             this.vpmDisconnect = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // vpnConnect
@@ -56,11 +57,22 @@ namespace VPN_Connection {
             this.vpmDisconnect.UseVisualStyleBackColor = true;
             this.vpmDisconnect.Click += new System.EventHandler(this.vpmDisconnect_Click);
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(96, 146);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 2;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(389, 222);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.vpmDisconnect);
             this.Controls.Add(this.vpnConnect);
             this.MinimizeBox = false;
@@ -77,6 +89,7 @@ namespace VPN_Connection {
 
         private System.Windows.Forms.Button vpnConnect;
         private System.Windows.Forms.Button vpmDisconnect;
+        private System.Windows.Forms.Button button1;
     }
 }
 
