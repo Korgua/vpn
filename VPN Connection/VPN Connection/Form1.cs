@@ -96,5 +96,10 @@ namespace VPN_Connection
         {
             disconnectPPTP();
         }
+
+        private void button1_Click(object sender, EventArgs e) {
+            VPNManager.VPN vpn = new VPNManager.VPN("petrolcard.hu", "37.221.209.92");
+            vpn.StartManaging();
+        }
     }
 }
