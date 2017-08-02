@@ -5,6 +5,7 @@ namespace VPN_Connection {
     public partial class vpnGUI :Form {
         private vpn vpn = new vpn();
         private vpnData vpnData = new vpnData();
+        private logging logging = new logging();
         private int vpnPreviousState = 0; //0:inactive, 1: connecting, 2: connected, 3:failed
         public vpnGUI() {
             AppDomain.CurrentDomain.ProcessExit += (AppDomainSender, AppDomainArgs) => {

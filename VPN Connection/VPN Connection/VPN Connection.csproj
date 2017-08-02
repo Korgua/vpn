@@ -71,6 +71,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="logging.cs" />
     <Compile Include="vpnData.cs" />
     <Compile Include="vpn.cs" />
     <Compile Include="vpnGUI.cs">
