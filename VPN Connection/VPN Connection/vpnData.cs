@@ -16,8 +16,9 @@ namespace VPN_Connection {
         private logging log = new logging();
         public vpnData() {
             string path =  AppDomain.CurrentDomain.BaseDirectory+@"\\config.xml";
+            FileStream fs;
             try {
-                FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
+                fs = new FileStream(path, FileMode.Open, FileAccess.Read);
                     try {
                         XmlDocument xmlDoc = new XmlDocument();
                         xmlDoc.Load(fs);
@@ -36,7 +37,6 @@ namespace VPN_Connection {
                                 notification = int.Parse(xnode["notification"].InnerText);
                                 notificationLength = int.Parse(xnode["notification_length"].InnerText) * 1000;
                                 maxAttempt = int.Parse(xnode["max_attempt_to_reconnect"].InnerText);
-                                wait = int.Parse(xnode["wait_before_reconnect"].InnerText);
                                 stateInterval = int.Parse(xnode["checking_state_interval"].InnerText) * 1000;
                             }
                             Console.WriteLine(String.Format("NotificationLength: {0}", notificationLength));

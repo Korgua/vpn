@@ -8,18 +8,31 @@ namespace VPN_Connection {
     public class vpn {
         private RasDialer dialer { get; set; }// = new RasDialer();
         private vpnData vpnData = new vpnData();
+        private logging logging = new logging();
 
         public void connectPPTP() {
-            Uri uri = new Uri(vpnData.host);
+            bool error = false;
             string ip = null;
             try {
-                 ip = Dns.GetHostAddresses(uri.Host)[0].ToString();
+                Uri uri = new Uri(vpnData.host);
+                logging.writeToLog(null, String.Format("[ConnectToPPTP][VPN_HOST] {0}",vpnData.host));
+                try {
+                    ip = Dns.GetHostAddresses(uri.Host)[0].ToString();
+                    logging.writeToLog(null, String.Format("[ConnectToPPTP][GetHostAddresses] {0}", ip));
+                }
+                catch (Exception e) {
+                    error = true;
+                    logging.writeToLog(null, String.Format("[ConnectToPPTP][GetHostAddresses] {0} --> Exception found: {1}", vpnData.host, e.Message));
+                    Console.WriteLine(e.Message);
+                }
             }
-            catch(Exception e) {
+            catch (Exception e) {
+                error = true;
+                logging.writeToLog(null, String.Format("[ConnectToPPTP][VPN_HOST] {0} --> Exception found: {1}",vpnData.host, e.Message));
                 Console.WriteLine(e.Message);
             }
             FileStream fs = null;
-            String path = @".\\vpn.pbk";
+            String path = AppDomain.CurrentDomain.BaseDirectory + @".\\vpn.pbk";
             if (System.IO.File.Exists(path)) {
                 System.IO.File.Delete(path);
             }

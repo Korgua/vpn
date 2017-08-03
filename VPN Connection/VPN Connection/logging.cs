@@ -7,21 +7,23 @@ namespace VPN_Connection {
     public class logging {
 
         List<string> loggingExc = new List<string>();
-        public string logPath = AppDomain.CurrentDomain.BaseDirectory + "\\log"; //@".\\log\vpn_";
+        private string logPath = AppDomain.CurrentDomain.BaseDirectory + @"\\log"; //@".\\log\vpn_";
+        private string actualFileName;
         public logging() {
             createLogFile();
         }
 
-        public void deleteLog() {
+        /*public void deleteLog() {
             try {
                 File.Delete(logPath);
             }
             catch(Exception e) {
                 loggingExc.Add(e.Message);
             }
-        }
+        }*/
 
         public bool createLogFile() {
+            
             try {
                 Directory.CreateDirectory(logPath);
             }
@@ -30,13 +32,14 @@ namespace VPN_Connection {
             }
             FileStream fs = null;
             DateTimeOffset logDateStart = new DateTimeOffset(DateTime.Now);
+            actualFileName = "\\vpn_" + logDateStart.ToString("yyyy.MM.dd_HH") + ".txt";
             try {
-                if(!File.Exists(logPath)) {
+                if(!File.Exists(logPath + actualFileName)) {
                     try {
-                        fs = File.Create(logPath+"\\vpn_"+ logDateStart.ToString("yyyy.MM.dd")+".txt");
+                        fs = File.Create(logPath + actualFileName);
                         fs.Close();
                         try {
-                            StreamWriter log = new StreamWriter(logPath, true);
+                            StreamWriter log = new StreamWriter(logPath + actualFileName, true);
                             log.WriteLine(logDateStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t------------   Log Start   ------------"));
                             log.Close();
                             return true;
@@ -59,29 +62,38 @@ namespace VPN_Connection {
             return false;
         }
         public void writeToLog(List<string> multiline, string line) {
-            if(createLogFile()) {
+            if (createLogFile()) {
                 try {
-                    StreamWriter log = new StreamWriter(logPath, true);
+                    StreamWriter log = new StreamWriter(logPath+actualFileName, true);
+                    Console.WriteLine(logPath + actualFileName);
                     DateTimeOffset logStart = new DateTimeOffset(DateTime.Now);
-                    if(multiline != null) {
+                    if (multiline != null) {
                         bool isFirst = true;
-                        foreach(string s in multiline) {
-                            if(isFirst) {
+                        foreach (string s in multiline) {
+                            if (isFirst) {
                                 log.WriteLine(logStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t" + s));
-                                isFirst = !isFirst;
+                                isFirst = false;
                             }
                             else
                                 log.WriteLine(logStart.ToString("                       ") + ("\t" + s));
                         }
                     }
-                    else if(line != null) {
+                    else if (line != null) {
+                        Console.WriteLine(line);
                         log.WriteLine(logStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t" + line));
                     }
-                    else
+                    else {
                         log.WriteLine();
-                    log.Close();
+                    }
+                    try {
+                        log.Close();
+                    }
+                    catch (Exception e) {
+                        loggingExc.Add(e.Message);
+                    }
                 }
                 catch(Exception e) {
+                    Console.WriteLine(e.Message);
                     loggingExc.Add(e.Message);
                 }
             }

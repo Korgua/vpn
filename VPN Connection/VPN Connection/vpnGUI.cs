@@ -6,34 +6,40 @@ namespace VPN_Connection {
         private vpn vpn = new vpn();
         private vpnData vpnData = new vpnData();
         private logging logging = new logging();
-        private int vpnPreviousState = 0; //0:inactive, 1: connecting, 2: connected, 3:failed
+        private int vpnPreviousState = 0; //0:not connected, 1: connecting, 2: connected, 3:failed
         public vpnGUI() {
             AppDomain.CurrentDomain.ProcessExit += (AppDomainSender, AppDomainArgs) => {
+                //Windows 10 - Sometimes the tray icon won't dispose after close
+                //Force to remove before close the app
                 trayIcon.BalloonTipClosed += (sender, args) => {
                     var trayIcon = (NotifyIcon)sender;
                     trayIcon.Visible = false;
                     trayIcon.Icon = null;
                     trayIcon.Dispose();
                 };
+                logging.writeToLog(null, String.Format("[Program] End"));
             };
             InitializeComponent();
+            logging.writeToLog(null, String.Format("[Program] Begin"));
+            int attempts = 0;
+            //connectToVpn();
+
             Timer timer = new Timer();
             timer.Interval = vpnData.stateInterval;
-            int attempts = 0;
             timer.Tick += (sender, args) => {
-                Console.WriteLine("Before -- Attempts: {0}/{2}, vpnPreviousState: {1}", attempts, vpnPreviousState,vpnData.maxAttempt);
                 if (attempts == vpnData.maxAttempt && vpnPreviousState == 1) {
                     timer.Stop();
                     vpnPreviousState = 3;
+                    logging.writeToLog(null, String.Format("[Ticker] Reached max attempts({0})! Timer stopped",vpnData.maxAttempt));
                 }
                 else if (vpnPreviousState < 2) {
-                    ++attempts;
+                    logging.writeToLog(null, String.Format("[Ticker] Attempts: {0}/{1}", ++attempts, vpnData.maxAttempt));
+                    connectToVpn();
                 }
-                else if (vpnPreviousState > 1) {
+                else if (vpnPreviousState == 2) {
+                    connectionStatus();
                     attempts = 0;
                 }
-                connectToVpn();
-                Console.WriteLine("After -- Attempts: {0}, vpnPreviousState: {1}", attempts, vpnPreviousState);
             };
             timer.Start();
             trayIconContextItemState.Enabled = false;
@@ -50,23 +56,26 @@ namespace VPN_Connection {
         }
 
         public void connectToVpn() {
+            logging.writeToLog(null, String.Format("[connectToVpn] Begin"));
             if (!vpn.getConnectionStatus()) {
+                logging.writeToLog(null, String.Format("[ConnectionStatus] Not connected"));
                 if (vpnPreviousState == 3) {
-                    Console.WriteLine("connection failed");
+                    logging.writeToLog(null, String.Format("[connectToVpn] Failed to connect"));
                     trayIconContextItemState.Text = "Csatlakozás sikertelen";
                     vpnPreviousState = 3;
                     createBalloonMessage(vpnData.notificationLength, "A központhoz való csatlakozás meghiúsult", vpnData.host, ToolTipIcon.Error);
                     MessageBox.Show("A központhoz való csatlakozás meghiúsult", vpnData.host, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 else {
-                    Console.WriteLine("!vpn.getConnectionStatus()");
-                    Console.WriteLine("Csatlakozás");
-                    if (vpnPreviousState != 1)
+                    if (vpnPreviousState != 1) {
                         createBalloonMessage(vpnData.notificationLength, "Csatlakozás...", vpnData.host, ToolTipIcon.Info);
+                        trayIconContextItemState.Text = "Csatlakozás";
+                        logging.writeToLog(null, String.Format("[connectToVpn] Connecting"));
+                    }
                     vpnPreviousState = 1;
-                    trayIconContextItemState.Text = "Csatlakozás";
                     vpn.connectPPTP();
                     if (vpn.getConnectionStatus()) {
+                        logging.writeToLog(null, String.Format("[ConnectionStatus] Connected"));
                         createBalloonMessage(vpnData.notificationLength, "Csatlakoztatva", vpnData.host, ToolTipIcon.Info);
                         trayIconContextItemState.Text = "Csatlakoztatva";
                         vpnPreviousState = 2;
@@ -74,9 +83,22 @@ namespace VPN_Connection {
                 }
             }
             else if (vpn.getConnectionStatus() && vpnPreviousState == 0) {
+                logging.writeToLog(null, String.Format("[ConnectionStatus] Already connected"));
                 createBalloonMessage(vpnData.notificationLength, "Csatlakoztatva", vpnData.host, ToolTipIcon.Info);
                 vpnPreviousState = 2;
             }
+        }
+
+        private bool connectionStatus() {
+            if (vpn.getConnectionStatus()) {
+                return true;
+            }
+            else {
+                if (vpnPreviousState == 2) {
+                    vpnPreviousState = 0;
+                }
+            }
+            return false;
         }
 
         private void vpnConnect_Click(object sender, EventArgs e) {

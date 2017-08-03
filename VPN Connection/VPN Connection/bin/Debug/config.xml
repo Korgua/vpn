@@ -10,7 +10,6 @@
 			<notification>1</notification>
 			<notification_length>2</notification_length>
 			<max_attempt_to_reconnect>3</max_attempt_to_reconnect>
-			<wait_before_reconnect>3</wait_before_reconnect>
 			<checking_state_interval>10</checking_state_interval>
 		</customize>
 	</vpn_settings>
