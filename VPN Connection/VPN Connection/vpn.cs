@@ -6,90 +6,110 @@ using System.Net;
 
 namespace VPN_Connection {
     public class vpn {
-        private RasDialer dialer { get; set; }// = new RasDialer();
         private vpnData vpnData = new vpnData();
         private logging logging = new logging();
 
-        public void connectPPTP() {
-            bool error = false;
+        public bool connectPPTP() {
             string ip = null;
             try {
                 Uri uri = new Uri(vpnData.host);
-                logging.writeToLog(null, String.Format("[ConnectToPPTP][VPN_HOST] {0}",vpnData.host));
+                logging.writeToLog(null, String.Format("[ConnectToPPTP][VPN_HOST] {0}", vpnData.host));
                 try {
                     ip = Dns.GetHostAddresses(uri.Host)[0].ToString();
                     logging.writeToLog(null, String.Format("[ConnectToPPTP][GetHostAddresses] {0}", ip));
                 }
-                catch (Exception e) {
-                    error = true;
+                catch(Exception e) {
                     logging.writeToLog(null, String.Format("[ConnectToPPTP][GetHostAddresses] {0} --> Exception found: {1}", vpnData.host, e.Message));
                     Console.WriteLine(e.Message);
+                    return false;
                 }
             }
-            catch (Exception e) {
-                error = true;
-                logging.writeToLog(null, String.Format("[ConnectToPPTP][VPN_HOST] {0} --> Exception found: {1}",vpnData.host, e.Message));
+            catch(Exception e) {
+                logging.writeToLog(null, String.Format("[ConnectToPPTP][VPN_HOST] {0} --> Exception found: {1}", vpnData.host, e.Message));
                 Console.WriteLine(e.Message);
+                return false;
             }
-            FileStream fs = null;
             String path = AppDomain.CurrentDomain.BaseDirectory + @".\\vpn.pbk";
-            if (System.IO.File.Exists(path)) {
-                System.IO.File.Delete(path);
-            }
-            fs = System.IO.File.Create(path);
-            fs.Close();
-
-            RasPhoneBook book = new RasPhoneBook();
-            book.Open(path); //Define book path
-            bool first = true;
-            RasDevice device = null;
-            foreach (RasDevice _device in RasDevice.GetDevices()) {
-                if (_device.Name.Contains("PPTP") && _device.DeviceType.ToString().ToLower() == "vpn" && first) {
-
-                    device = _device;
-                    first = false;
+            if(System.IO.File.Exists(path)) {
+                try {
+                    System.IO.File.Delete(path);
+                    logging.writeToLog(null, String.Format("[ConnectToPPTP][Remove old phonebook] success"));
+                }
+                catch(Exception e) {
+                    logging.writeToLog(null, String.Format("[ConnectToPPTP][Remove old phonebook] Exception found: {0}", e.Message));
+                    return false;
                 }
             }
             try {
-                RasEntry entry = RasEntry.CreateVpnEntry(vpnData.entryName, ip, RasVpnStrategy.PptpFirst, device); //Prepare server details
-                book.Entries.Add(entry); //Write to vpn.pbk
+                using(FileStream fs = System.IO.File.Create(path)) {
+                    fs.Close();
+                    logging.writeToLog(null, String.Format("[ConnectToPPTP][Create Phonebook] success"));
+                }
             }
             catch(Exception e) {
+                logging.writeToLog(null, String.Format("[ConnectToPPTP][Create Phonebook] Exception found: {0}", e.Message));
                 Console.WriteLine(e.Message);
+                return false;
+            }
+
+            RasPhoneBook book = new RasPhoneBook();
+            try {
+                book.Open(path); //Define book path
+                logging.writeToLog(null, String.Format("[ConnectToPPTP][Open Phonebook] Success"));
+            }
+            catch(Exception e) {
+                logging.writeToLog(null, String.Format("[ConnectToPPTP][Open Phonebook] Exception found: {0}", e.Message));
+                Console.WriteLine(e.Message);
+                return false;
+            }
+            RasDevice device = RasDevice.GetDevices().Where(o => o.Name.Contains("PPTP")).FirstOrDefault();
+            if(device == null) {
+                logging.writeToLog(null, String.Format("[ConnectToPPTP][Device] Useable device for VPN not found"));
+                Console.WriteLine(String.Format("[ConnectToPPTP][Device] Useable device for VPN not found"));
+                return false;
+            }
+            RasEntry entry = RasEntry.CreateVpnEntry(vpnData.entryName, ip, RasVpnStrategy.PptpFirst, device);
+            try {
+                book.Entries.Add(entry); //Write to vpn.pbk
+                logging.writeToLog(null, String.Format("[ConnectToPPTP][Write to Phonebook] Success"));
+            }
+            catch(Exception e) {
+                logging.writeToLog(null, String.Format("[ConnectToPPTP][Add phonebook entry] Exception found: {0}", e.Message));
+                Console.WriteLine(String.Format("[ConnectToPPTP][Add phonebook entry] Exception found: {0}", e.Message));
+                return false;
             }
 
             //Writing server information is done, now we will connect to it.
 
-            dialer = new RasDialer();
+            RasDialer dialer = new RasDialer();
             dialer.PhoneBookPath = book.Path; //Read server list from vpn.pbk
             dialer.Credentials = new NetworkCredential(vpnData.username, vpnData.password); //Define username and password
             dialer.EntryName = vpnData.entryName; //Get server named {entryName}
             try {
                 dialer.Dial(); //Connect
+                logging.writeToLog(null, String.Format("[ConnectToPPTP][Dial] Success"));
             }
-            catch (Exception e) {
-                Console.WriteLine(e.Message);
+            catch(Exception e) {
+                logging.writeToLog(null, String.Format("[ConnectToPPTP][Dial] Exception found: {0}", e.Message));
+                Console.WriteLine(String.Format("[ConnectToPPTP][Dial] Exception found: {0}", e.Message));
             }
+            return true;
         }
 
         public void disconnectPPTP() {
             RasConnection conn = RasConnection.GetActiveConnections().Where(o => o.EntryName == vpnData.entryName).FirstOrDefault(); //Used LINQ, to get connection named My VPN Client
-            if (conn != null) //If connection is found
-            {
+            if(conn != null){
                 conn.HangUp(); //You know what this does
+                logging.writeToLog(null, String.Format("[disconnectPPTP] Disconnect Success"));
             }
+            logging.writeToLog(null, String.Format("[disconnectPPTP] No active VPN connection"));
+            Console.WriteLine(String.Format("[disconnectPPTP] No active VPN connection"));
         }
 
         public bool getConnectionStatus() {
-            try {
-                RasConnection conn = RasConnection.GetActiveConnections().Where(o => o.EntryName == vpnData.entryName).FirstOrDefault(); //Used LINQ, to get connection named My VPN Client
-                if (conn != null){
-
-                    return true;
-                }
-            }
-            catch (Exception e) {
-                Console.WriteLine(e.Message);
+            RasConnection conn = RasConnection.GetActiveConnections().Where(o => o.EntryName == vpnData.entryName).FirstOrDefault(); //Used LINQ, to get connection named My VPN Client
+            if(conn != null) {
+                return true;
             }
             return false;
         }

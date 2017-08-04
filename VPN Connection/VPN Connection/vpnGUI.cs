@@ -1,11 +1,17 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace VPN_Connection {
     public partial class vpnGUI :Form {
+        private bool ToggleMove;
+        private int MValX;
+        private int MValY;
+
         private vpn vpn = new vpn();
         private vpnData vpnData = new vpnData();
         private logging logging = new logging();
+        private animation Anim = new animation();
         private int vpnPreviousState = 0; //0:not connected, 1: connecting, 2: connected, 3:failed
         public vpnGUI() {
             AppDomain.CurrentDomain.ProcessExit += (AppDomainSender, AppDomainArgs) => {
@@ -23,7 +29,7 @@ namespace VPN_Connection {
             logging.writeToLog(null, String.Format("[Program] Begin"));
             int attempts = 0;
             //connectToVpn();
-
+            Anim.FadeIn(this, 5);
             Timer timer = new Timer();
             timer.Interval = vpnData.stateInterval;
             timer.Tick += (sender, args) => {
@@ -41,10 +47,24 @@ namespace VPN_Connection {
                     attempts = 0;
                 }
             };
-            timer.Start();
+            //timer.Start();
             trayIconContextItemState.Enabled = false;
             //HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\NetworkList\Profiles
         }
+        private void FormDragStart(object sender, MouseEventArgs e) {
+            ToggleMove = true;
+            MValX = e.X;
+            MValY = e.Y;
+        }
+        private void FormDragEnd(object sender, MouseEventArgs e) {
+            ToggleMove = false;
+        }
+        private void FormDrag(object sender, MouseEventArgs e) {
+            if(ToggleMove) {
+                this.SetDesktopLocation(MousePosition.X - MValX, MousePosition.Y - MValY);
+            }
+        }
+
 
         public void createBalloonMessage(int _interval, string _text, string _title, ToolTipIcon _tti) {
             trayIcon.BalloonTipIcon = _tti;
@@ -63,8 +83,8 @@ namespace VPN_Connection {
                     logging.writeToLog(null, String.Format("[connectToVpn] Failed to connect"));
                     trayIconContextItemState.Text = "Csatlakozás sikertelen";
                     vpnPreviousState = 3;
-                    createBalloonMessage(vpnData.notificationLength, "A központhoz való csatlakozás meghiúsult", vpnData.host, ToolTipIcon.Error);
-                    MessageBox.Show("A központhoz való csatlakozás meghiúsult", vpnData.host, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    createBalloonMessage(vpnData.notificationLength, "Csatlakozás sikertelen", vpnData.host, ToolTipIcon.Error);
+                    MessageBox.Show("Csatlakozás sikertelen", vpnData.host, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 else {
                     if (vpnPreviousState != 1) {
@@ -91,6 +111,7 @@ namespace VPN_Connection {
 
         private bool connectionStatus() {
             if (vpn.getConnectionStatus()) {
+                logging.writeToLog(null, String.Format("[connectionStatus] VPN connection is active"));
                 return true;
             }
             else {
@@ -98,6 +119,8 @@ namespace VPN_Connection {
                     vpnPreviousState = 0;
                 }
             }
+            logging.writeToLog(null, String.Format("[connectionStatus] VPN connection is not active"));
+            Console.WriteLine(String.Format("[connectionStatus] VPN connection is not active"));
             return false;
         }
 
@@ -109,6 +132,17 @@ namespace VPN_Connection {
         private void vpnDisconnect_Click(object sender, EventArgs e) {
             Console.WriteLine("alma");
             vpn.disconnectPPTP();
+        }
+
+        private void button1_Click(object sender, EventArgs e) {
+            Anim.FadeOut(this, 5);
+            Timer alma = new Timer();
+            alma.Interval = 2000;
+            alma.Tick += (Asender, args) => {
+                Anim.FadeIn(this, 5);
+                alma.Stop();
+            };
+            alma.Start();
         }
     }
 }

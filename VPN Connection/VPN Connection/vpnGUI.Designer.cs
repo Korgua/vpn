@@ -15,7 +15,8 @@ namespace VPN_Connection {
        /*protected override void OnPaint(System.Windows.Forms.PaintEventArgs e)
         { 
             GraphicsPath wantedshape = new GraphicsPath();
-            wantedshape.AddEllipse(25, 25, 25,25);
+            Rectangle rect = new Rectangle(20, 20, 150, 50);
+            wantedshape.AddRectangle(rect);
             this.Region = new Region(wantedshape);
         }*/
         protected override void Dispose(bool disposing) {
@@ -40,7 +41,11 @@ namespace VPN_Connection {
             this.trayContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.trayIconContextItemState = new System.Windows.Forms.ToolStripMenuItem();
             this.statusToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.button1 = new System.Windows.Forms.Button();
+            this.notificationText = new System.Windows.Forms.Label();
+            this.notificationIcon = new System.Windows.Forms.PictureBox();
             this.trayContextMenu.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.notificationIcon)).BeginInit();
             this.SuspendLayout();
             // 
             // vpnConnect
@@ -55,7 +60,7 @@ namespace VPN_Connection {
             // 
             // vpnDisconnect
             // 
-            this.vpnDisconnect.Location = new System.Drawing.Point(80, 89);
+            this.vpnDisconnect.Location = new System.Drawing.Point(83, 0);
             this.vpnDisconnect.Name = "vpnDisconnect";
             this.vpnDisconnect.Size = new System.Drawing.Size(109, 23);
             this.vpnDisconnect.TabIndex = 1;
@@ -83,31 +88,80 @@ namespace VPN_Connection {
             this.trayIconContextItemState.Enabled = false;
             this.trayIconContextItemState.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.trayIconContextItemState.Name = "trayIconContextItemState";
-            this.trayIconContextItemState.Size = new System.Drawing.Size(152, 22);
+            this.trayIconContextItemState.Size = new System.Drawing.Size(141, 22);
             this.trayIconContextItemState.Text = "ChangeState";
             // 
             // statusToolStripMenuItem
             // 
             this.statusToolStripMenuItem.Name = "statusToolStripMenuItem";
-            this.statusToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.statusToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
             this.statusToolStripMenuItem.Text = "Status";
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(198, 0);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 2;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // notificationText
+            // 
+            this.notificationText.AutoSize = true;
+            this.notificationText.BackColor = System.Drawing.Color.Transparent;
+            this.notificationText.Font = new System.Drawing.Font("Microsoft PhagsPa", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.notificationText.ForeColor = System.Drawing.Color.Firebrick;
+            this.notificationText.Location = new System.Drawing.Point(53, 36);
+            this.notificationText.Name = "notificationText";
+            this.notificationText.Size = new System.Drawing.Size(201, 21);
+            this.notificationText.TabIndex = 6;
+            this.notificationText.Text = "Csatlakozás folyamatban";
+            this.notificationText.MouseDown += new System.Windows.Forms.MouseEventHandler(this.FormDragStart);
+            this.notificationText.MouseMove += new System.Windows.Forms.MouseEventHandler(this.FormDrag);
+            this.notificationText.MouseUp += new System.Windows.Forms.MouseEventHandler(this.FormDragEnd);
+            // 
+            // notificationIcon
+            // 
+            this.notificationIcon.Image = ((System.Drawing.Image)(resources.GetObject("notificationIcon.Image")));
+            this.notificationIcon.Location = new System.Drawing.Point(12, 29);
+            this.notificationIcon.Name = "notificationIcon";
+            this.notificationIcon.Size = new System.Drawing.Size(35, 35);
+            this.notificationIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.notificationIcon.TabIndex = 5;
+            this.notificationIcon.TabStop = false;
+            this.notificationIcon.MouseDown += new System.Windows.Forms.MouseEventHandler(this.FormDragStart);
+            this.notificationIcon.MouseMove += new System.Windows.Forms.MouseEventHandler(this.FormDrag);
+            this.notificationIcon.MouseUp += new System.Windows.Forms.MouseEventHandler(this.FormDragEnd);
             // 
             // vpnGUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(199, 220);
+            this.BackColor = System.Drawing.Color.DarkSalmon;
+            this.ClientSize = new System.Drawing.Size(282, 70);
+            this.Controls.Add(this.notificationText);
+            this.Controls.Add(this.notificationIcon);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.vpnDisconnect);
             this.Controls.Add(this.vpnConnect);
+            this.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "vpnGUI";
-            this.ShowIcon = false;
-            this.ShowInTaskbar = false;
+            this.Opacity = 0D;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "VH VPN";
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.FormDragStart);
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.FormDrag);
+            this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.FormDragEnd);
             this.trayContextMenu.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.notificationIcon)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -119,6 +173,9 @@ namespace VPN_Connection {
         public System.Windows.Forms.ContextMenuStrip trayContextMenu;
         public System.Windows.Forms.ToolStripMenuItem trayIconContextItemState;
         private System.Windows.Forms.ToolStripMenuItem statusToolStripMenuItem;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.PictureBox notificationIcon;
+        private System.Windows.Forms.Label notificationText;
     }
 }
 
