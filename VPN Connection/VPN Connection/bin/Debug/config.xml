@@ -8,7 +8,7 @@
 		</vpn_connection>
 		<customize>
 			<notification>1</notification>
-			<notification_length>2</notification_length>
+			<notification_length>5</notification_length>
 			<max_attempt_to_reconnect>3</max_attempt_to_reconnect>
 			<checking_state_interval>10</checking_state_interval>
 		</customize>

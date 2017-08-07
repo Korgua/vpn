@@ -111,7 +111,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\error.bmp" />
     <None Include="Resources\info.png" />
     <None Include="Resources\tick.png" />
     <None Include="Resources\error.png" />

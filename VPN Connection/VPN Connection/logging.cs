@@ -65,7 +65,6 @@ namespace VPN_Connection {
             if (createLogFile()) {
                 try {
                     StreamWriter log = new StreamWriter(logPath+actualFileName, true);
-                    Console.WriteLine(logPath + actualFileName);
                     DateTimeOffset logStart = new DateTimeOffset(DateTime.Now);
                     if (multiline != null) {
                         bool isFirst = true;

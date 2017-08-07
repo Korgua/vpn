@@ -19,3 +19,4 @@ C:\git\visual_studio\vpn_connection\VPN Connection\VPN Connection\obj\Release\VP
 C:\git\visual_studio\vpn_connection\VPN Connection\VPN Connection\obj\Release\VPN_Connection.vpnGUI.resources
 C:\git\visual_studio\vpn_connection\VPN Connection\VPN Connection\obj\Release\VPN_Connection.Properties.Resources.resources
 C:\git\visual_studio\vpn_connection\VPN Connection\VPN Connection\obj\Release\VPN Connection.csproj.GenerateResource.Cache
+d:\git\visual_studio\vpn\VPN Connection\VPN Connection\obj\Release\VPN Connection.csprojResolveAssemblyReference.cache

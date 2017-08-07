@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace VPN_Connection {
     public class vpn {
@@ -66,7 +67,7 @@ namespace VPN_Connection {
             if(device == null) {
                 logging.writeToLog(null, String.Format("[ConnectToPPTP][Device] Useable device for VPN not found"));
                 Console.WriteLine(String.Format("[ConnectToPPTP][Device] Useable device for VPN not found"));
-                return false;
+                
             }
             RasEntry entry = RasEntry.CreateVpnEntry(vpnData.entryName, ip, RasVpnStrategy.PptpFirst, device);
             try {
@@ -92,6 +93,7 @@ namespace VPN_Connection {
             catch(Exception e) {
                 logging.writeToLog(null, String.Format("[ConnectToPPTP][Dial] Exception found: {0}", e.Message));
                 Console.WriteLine(String.Format("[ConnectToPPTP][Dial] Exception found: {0}", e.Message));
+                return false;
             }
             return true;
         }
