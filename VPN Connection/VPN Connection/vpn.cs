@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace VPN_Connection {
     public class vpn {
-        private vpnData vpnData = new vpnData();
+        public vpnData vpnData = new vpnData();
         private logging logging = new logging();
+        public string error;
 
         public bool connectPPTP() {
             string ip = null;
@@ -22,6 +23,7 @@ namespace VPN_Connection {
                 catch(Exception e) {
                     logging.writeToLog(null, String.Format("[ConnectToPPTP][GetHostAddresses] {0} --> Exception found: {1}", vpnData.host, e.Message));
                     Console.WriteLine(e.Message);
+                    error = "petrolcard.hu is unreachable";
                     return false;
                 }
             }

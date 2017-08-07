@@ -59,6 +59,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -73,6 +74,11 @@
   <ItemGroup>
     <Compile Include="Animation.cs" />
     <Compile Include="logging.cs" />
+    <Compile Include="vpn_connection.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>vpn_connection.settings</DependentUpon>
+    </Compile>
     <Compile Include="vpnData.cs" />
     <Compile Include="vpn.cs" />
     <Compile Include="vpnGUI.cs">
@@ -106,6 +112,10 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="vpn_connection.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>vpn_connection.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
