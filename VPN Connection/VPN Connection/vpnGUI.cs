@@ -77,7 +77,7 @@ namespace VPN_Connection {
         public void connectToVpn() {
             logging.writeToLog(null, String.Format("[connectToVpn] Begin"));
             logging.writeToLog(null, String.Format("[connectToVpn] vpnPreviousState: {0}",vpnPreviousState));
-            if (!vpn.getConnectionStatus()) {
+            if (vpn.getConnectionStatus()==null) {
                 logging.writeToLog(null, String.Format("[ConnectionStatus] Not connected"));
                 if (vpnPreviousState == 3) {
                     logging.writeToLog(null, String.Format("[connectToVpn] Failed to connect"));
@@ -93,7 +93,7 @@ namespace VPN_Connection {
                     }
                     vpnPreviousState = 1;
                     vpn.connectPPTP();
-                    if (vpn.getConnectionStatus()) {
+                    if (vpn.getConnectionStatus() != null) {
                         logging.writeToLog(null, String.Format("[ConnectionStatus] Connected"));
                         Anim.activateNotification(this, notificationIcon, notificationText, 2, vpn.vpnData.notificationLength);
                         trayIconContextItemState.Text = "Csatlakoztatva";
@@ -101,7 +101,7 @@ namespace VPN_Connection {
                     }
                 }
             }
-            else if (vpn.getConnectionStatus() && vpnPreviousState == 0) {
+            else if (vpn.getConnectionStatus()!=null && vpnPreviousState == 0) {
                 logging.writeToLog(null, String.Format("[ConnectionStatus] Already connected"));
                 vpnPreviousState = 2;
                 Anim.activateNotification(this, notificationIcon, notificationText, 2, vpn.vpnData.notificationLength);
@@ -109,7 +109,7 @@ namespace VPN_Connection {
         }
 
         private bool connectionStatus() {
-            if (vpn.getConnectionStatus()) {
+            if (vpn.getConnectionStatus()!=null) {
                 logging.writeToLog(null, String.Format("[connectionStatus] VPN connection is active"));
                 return true;
             }

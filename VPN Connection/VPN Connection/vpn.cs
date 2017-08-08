@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 
 namespace VPN_Connection {
@@ -23,8 +24,12 @@ namespace VPN_Connection {
                 catch(Exception e) {
                     logging.writeToLog(null, String.Format("[ConnectToPPTP][GetHostAddresses] {0} --> Exception found: {1}", vpnData.host, e.Message));
                     Console.WriteLine(e.Message);
-                    error = "petrolcard.hu is unreachable";
-                    return false;
+                    error = "A VPN szerver nem érhető el";
+                    try {
+                        Ping ping = new Ping();
+                        ping.SendPingAsync()
+                        logging.writeToLog(null, String.Format("[ConnectToPPTP][Check internet connection] {0}", vpnData.host));
+                        return false;
                 }
             }
             catch(Exception e) {
@@ -73,7 +78,7 @@ namespace VPN_Connection {
             }
             RasEntry entry = RasEntry.CreateVpnEntry(vpnData.entryName, ip, RasVpnStrategy.PptpFirst, device);
             try {
-                book.Entries.Add(entry); //Write to vpn.pbk
+                book.Entries.Add(entry);
                 logging.writeToLog(null, String.Format("[ConnectToPPTP][Write to Phonebook] Success"));
             }
             catch(Exception e) {
@@ -81,15 +86,13 @@ namespace VPN_Connection {
                 Console.WriteLine(String.Format("[ConnectToPPTP][Add phonebook entry] Exception found: {0}", e.Message));
                 return false;
             }
-
-            //Writing server information is done, now we will connect to it.
-
+            
             RasDialer dialer = new RasDialer();
-            dialer.PhoneBookPath = book.Path; //Read server list from vpn.pbk
-            dialer.Credentials = new NetworkCredential(vpnData.username, vpnData.password); //Define username and password
-            dialer.EntryName = vpnData.entryName; //Get server named {entryName}
+            dialer.PhoneBookPath = book.Path;
+            dialer.Credentials = new NetworkCredential(vpnData.username, vpnData.password);
+            dialer.EntryName = vpnData.entryName;
             try {
-                dialer.Dial(); //Connect
+                dialer.Dial();
                 logging.writeToLog(null, String.Format("[ConnectToPPTP][Dial] Success"));
             }
             catch(Exception e) {
@@ -101,21 +104,21 @@ namespace VPN_Connection {
         }
 
         public void disconnectPPTP() {
-            RasConnection conn = RasConnection.GetActiveConnections().Where(o => o.EntryName == vpnData.entryName).FirstOrDefault(); //Used LINQ, to get connection named My VPN Client
+            RasConnection conn = getConnectionStatus();
             if(conn != null){
-                conn.HangUp(); //You know what this does
+                conn.HangUp();
                 logging.writeToLog(null, String.Format("[disconnectPPTP] Disconnect Success"));
             }
             logging.writeToLog(null, String.Format("[disconnectPPTP] No active VPN connection"));
             Console.WriteLine(String.Format("[disconnectPPTP] No active VPN connection"));
         }
 
-        public bool getConnectionStatus() {
-            RasConnection conn = RasConnection.GetActiveConnections().Where(o => o.EntryName == vpnData.entryName).FirstOrDefault(); //Used LINQ, to get connection named My VPN Client
+        public RasConnection getConnectionStatus() {
+            RasConnection conn = RasConnection.GetActiveConnections().Where(o => o.EntryName == vpnData.entryName).FirstOrDefault();
             if(conn != null) {
-                return true;
+                return conn;
             }
-            return false;
+            return null;
         }
     }
 }
