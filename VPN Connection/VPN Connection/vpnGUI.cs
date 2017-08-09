@@ -54,7 +54,7 @@ namespace VPN_Connection {
                     timer.Interval = vpn.vpnData.stateInterval;
                 }
             };
-            //timer.Start();
+            timer.Start();
             trayIconContextItemState.Enabled = false;
             //this.Opacity = 100;
             //Anim.Shrink(this, 5, 32, 128);

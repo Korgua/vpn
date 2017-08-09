@@ -13,6 +13,7 @@ namespace VPN_Connection {
         public string error;
 
         public bool connectPPTP() {
+            testInternetConnection();
             string ip = null;
             try {
                 Uri uri = new Uri(vpnData.host);
@@ -25,11 +26,6 @@ namespace VPN_Connection {
                     logging.writeToLog(null, String.Format("[ConnectToPPTP][GetHostAddresses] {0} --> Exception found: {1}", vpnData.host, e.Message));
                     Console.WriteLine(e.Message);
                     error = "A VPN szerver nem érhető el";
-                    try {
-                        Ping ping = new Ping();
-                        ping.SendPingAsync()
-                        logging.writeToLog(null, String.Format("[ConnectToPPTP][Check internet connection] {0}", vpnData.host));
-                        return false;
                 }
             }
             catch(Exception e) {
@@ -74,7 +70,7 @@ namespace VPN_Connection {
             if(device == null) {
                 logging.writeToLog(null, String.Format("[ConnectToPPTP][Device] Useable device for VPN not found"));
                 Console.WriteLine(String.Format("[ConnectToPPTP][Device] Useable device for VPN not found"));
-                
+
             }
             RasEntry entry = RasEntry.CreateVpnEntry(vpnData.entryName, ip, RasVpnStrategy.PptpFirst, device);
             try {
@@ -86,13 +82,13 @@ namespace VPN_Connection {
                 Console.WriteLine(String.Format("[ConnectToPPTP][Add phonebook entry] Exception found: {0}", e.Message));
                 return false;
             }
-            
+
             RasDialer dialer = new RasDialer();
             dialer.PhoneBookPath = book.Path;
             dialer.Credentials = new NetworkCredential(vpnData.username, vpnData.password);
             dialer.EntryName = vpnData.entryName;
             try {
-                dialer.Dial();
+                //dialer.Dial();
                 logging.writeToLog(null, String.Format("[ConnectToPPTP][Dial] Success"));
             }
             catch(Exception e) {
@@ -105,7 +101,7 @@ namespace VPN_Connection {
 
         public void disconnectPPTP() {
             RasConnection conn = getConnectionStatus();
-            if(conn != null){
+            if(conn != null) {
                 conn.HangUp();
                 logging.writeToLog(null, String.Format("[disconnectPPTP] Disconnect Success"));
             }
@@ -119,6 +115,49 @@ namespace VPN_Connection {
                 return conn;
             }
             return null;
+        }
+
+        public IPAddress resolveIP(string host) {
+            try {
+                using(Ping Ping = new Ping()) {
+                    PingReply PingReply = Ping.Send(host);
+                    if(PingReply.Status == IPStatus.Success)
+                        return PingReply.Address;
+                }
+            }
+            catch(Exception e) {
+                logging.writeToLog(null, String.Format("[testInternetConnection][Exception] {0} is unreachable: {1}", host, e.Message));
+            }
+            return null;
+        }
+
+        public bool testInternetConnection() {
+            logging.writeToLog(null, String.Format("[testInternetConnection] Begin"));
+            bool pingable = false;
+            Ping Ping = null;
+            PingReply PingReply = null;
+            try {
+                string PingAddress = "google-public-dns-a.google.com";
+                Ping = new Ping();
+                PingReply = Ping.Send(PingAddress);
+                pingable = (PingReply.Status == IPStatus.Success);
+                logging.writeToLog(null, String.Format("[testInternetConnection] {0} is alive: {1}", PingAddress, PingReply.Address));
+                try {
+                    Ping = new Ping();
+                    PingReply = Ping.Send(vpnData.host);
+                    pingable = (PingReply.Status == IPStatus.Success);
+                    logging.writeToLog(null, String.Format("[testInternetConnection] {0} is alive: {1}",vpnData.host, PingReply.Address));
+                }
+                catch(Exception e) {
+                    logging.writeToLog(null, String.Format("[testInternetConnection] Petrolcard is unreachable"));
+                    error = "VPN szerver nem érhető el";
+                }
+            }
+            catch(Exception e) {
+                logging.writeToLog(null, String.Format("[testInternetConnection] Google is unreachable"));
+                error = "Nincs internetkapcsolat";
+            }
+            return pingable;
         }
     }
 }

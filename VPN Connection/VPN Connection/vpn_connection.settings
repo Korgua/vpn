@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="vpn_host" Type="System.String" Scope="User">
-      <Value Profile="(Default)">http://petrolcard.hu</Value>
+      <Value Profile="(Default)">www.petrolcard.hu</Value>
     </Setting>
     <Setting Name="vpn_password" Type="System.String" Scope="User">
       <Value Profile="(Default)">jundjkft</Value>

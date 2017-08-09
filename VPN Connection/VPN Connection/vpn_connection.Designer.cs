@@ -25,7 +25,7 @@ namespace VPN_Connection {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://petrolcard.hu")]
+        [global::System.Configuration.DefaultSettingValueAttribute("www.petrolcard.hu")]
         public string vpn_host {
             get {
                 return ((string)(this["vpn_host"]));
