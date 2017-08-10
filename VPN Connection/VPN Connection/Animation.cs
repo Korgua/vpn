@@ -117,10 +117,10 @@ namespace VPN_Connection {
             Console.WriteLine("Interval: {0}", interval);
             fadeOut.Interval = interval;
             fadeOut.Tick += (sender, args) => {
-                logging.writeToLog(null, String.Format("[activateNotification][Ticker] Tick"));
+                logging.writeToLog(null, String.Format("[activateNotification][FadeOutTicker] Tick"));
                 FadeOut(form, 20);
                 fadeOut.Stop();
-                logging.writeToLog(null, String.Format("[activateNotification][Ticker] End"));
+                logging.writeToLog(null, String.Format("[activateNotification][FadeOutTicker] End"));
             };
             fadeOut.Start();
             logging.writeToLog(null, String.Format("[activateNotification][Ticker] Start"));

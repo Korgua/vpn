@@ -10,42 +10,23 @@ namespace VPN_Connection {
     public class vpn {
         public vpnData vpnData = new vpnData();
         private logging logging = new logging();
-        public string error;
+        private string path = AppDomain.CurrentDomain.BaseDirectory + @".\\vpn.pbk";
+        public string error { get; set; }
 
-        public bool connectPPTP() {
-            testInternetConnection();
-            string ip = null;
-            try {
-                Uri uri = new Uri(vpnData.host);
-                logging.writeToLog(null, String.Format("[ConnectToPPTP][VPN_HOST] {0}", vpnData.host));
-                try {
-                    ip = Dns.GetHostAddresses(uri.Host)[0].ToString();
-                    logging.writeToLog(null, String.Format("[ConnectToPPTP][GetHostAddresses] {0}", ip));
-                }
-                catch(Exception e) {
-                    logging.writeToLog(null, String.Format("[ConnectToPPTP][GetHostAddresses] {0} --> Exception found: {1}", vpnData.host, e.Message));
-                    Console.WriteLine(e.Message);
-                    error = "A VPN szerver nem érhető el";
-                }
-            }
-            catch(Exception e) {
-                logging.writeToLog(null, String.Format("[ConnectToPPTP][VPN_HOST] {0} --> Exception found: {1}", vpnData.host, e.Message));
-                Console.WriteLine(e.Message);
-                return false;
-            }
-            String path = AppDomain.CurrentDomain.BaseDirectory + @".\\vpn.pbk";
-            if(System.IO.File.Exists(path)) {
+        private RasPhoneBook createPhoneBook() {
+            string ip = resolveIP(vpnData.host).ToString();
+            if(File.Exists(path)) {
                 try {
                     System.IO.File.Delete(path);
                     logging.writeToLog(null, String.Format("[ConnectToPPTP][Remove old phonebook] success"));
                 }
                 catch(Exception e) {
                     logging.writeToLog(null, String.Format("[ConnectToPPTP][Remove old phonebook] Exception found: {0}", e.Message));
-                    return false;
+                    return null;
                 }
             }
             try {
-                using(FileStream fs = System.IO.File.Create(path)) {
+                using(FileStream fs = File.Create(path)) {
                     fs.Close();
                     logging.writeToLog(null, String.Format("[ConnectToPPTP][Create Phonebook] success"));
                 }
@@ -53,7 +34,7 @@ namespace VPN_Connection {
             catch(Exception e) {
                 logging.writeToLog(null, String.Format("[ConnectToPPTP][Create Phonebook] Exception found: {0}", e.Message));
                 Console.WriteLine(e.Message);
-                return false;
+                return null;
             }
 
             RasPhoneBook book = new RasPhoneBook();
@@ -64,7 +45,7 @@ namespace VPN_Connection {
             catch(Exception e) {
                 logging.writeToLog(null, String.Format("[ConnectToPPTP][Open Phonebook] Exception found: {0}", e.Message));
                 Console.WriteLine(e.Message);
-                return false;
+                return null;
             }
             RasDevice device = RasDevice.GetDevices().Where(o => o.Name.Contains("PPTP")).FirstOrDefault();
             if(device == null) {
@@ -80,84 +61,88 @@ namespace VPN_Connection {
             catch(Exception e) {
                 logging.writeToLog(null, String.Format("[ConnectToPPTP][Add phonebook entry] Exception found: {0}", e.Message));
                 Console.WriteLine(String.Format("[ConnectToPPTP][Add phonebook entry] Exception found: {0}", e.Message));
-                return false;
+                return null;
             }
+            return book;
+        }
 
-            RasDialer dialer = new RasDialer();
-            dialer.PhoneBookPath = book.Path;
-            dialer.Credentials = new NetworkCredential(vpnData.username, vpnData.password);
-            dialer.EntryName = vpnData.entryName;
-            try {
-                //dialer.Dial();
-                logging.writeToLog(null, String.Format("[ConnectToPPTP][Dial] Success"));
+        public void Dialer() {
+            logging.writeToLog(null, String.Format("Dialer] Begin"));
+            RasPhoneBook book;
+            if(testInternetConnection() && (book = createPhoneBook()) != null) {
+                string ip = resolveIP(vpnData.host).ToString();
+                RasDialer dialer = new RasDialer();
+                dialer.PhoneBookPath = book.Path;
+                dialer.Credentials = new NetworkCredential(vpnData.username, vpnData.password);
+                dialer.EntryName = vpnData.entryName;
+                try {
+                    dialer.Dial();
+                    logging.writeToLog(null, String.Format("Dialer] Success"));
+                }
+                catch(Exception e) {
+                    logging.writeToLog(null, String.Format("[Dialer][Exception] {0}", e.Message));
+                    Console.WriteLine(String.Format("[Dialer][Exception] {0}", e.Message));
+                }
             }
-            catch(Exception e) {
-                logging.writeToLog(null, String.Format("[ConnectToPPTP][Dial] Exception found: {0}", e.Message));
-                Console.WriteLine(String.Format("[ConnectToPPTP][Dial] Exception found: {0}", e.Message));
-                return false;
-            }
-            return true;
+            book = null;
+            logging.writeToLog(null, String.Format("Dialer] End"));
         }
 
         public void disconnectPPTP() {
-            RasConnection conn = getConnectionStatus();
-            if(conn != null) {
+            RasConnection conn;
+            if((conn = getConnectionStatus()) != null) {
                 conn.HangUp();
                 logging.writeToLog(null, String.Format("[disconnectPPTP] Disconnect Success"));
             }
-            logging.writeToLog(null, String.Format("[disconnectPPTP] No active VPN connection"));
-            Console.WriteLine(String.Format("[disconnectPPTP] No active VPN connection"));
+            conn = null;
         }
 
         public RasConnection getConnectionStatus() {
             RasConnection conn = RasConnection.GetActiveConnections().Where(o => o.EntryName == vpnData.entryName).FirstOrDefault();
             if(conn != null) {
+                logging.writeToLog(null, String.Format("[getConnectionStatus] VPN connection is active"));
                 return conn;
             }
+            logging.writeToLog(null, String.Format("[getConnectionStatus] No active VPN connection"));
             return null;
         }
 
         public IPAddress resolveIP(string host) {
+            logging.writeToLog(null, String.Format("[resolveIP] Host: {0}",host));
             try {
                 using(Ping Ping = new Ping()) {
                     PingReply PingReply = Ping.Send(host);
-                    if(PingReply.Status == IPStatus.Success)
+                    if(PingReply.Status == IPStatus.Success) {
+                        logging.writeToLog(null, String.Format("[resolveIP] Host found, IP address: {0}",PingReply.Address));
                         return PingReply.Address;
+                    }
                 }
             }
             catch(Exception e) {
-                logging.writeToLog(null, String.Format("[testInternetConnection][Exception] {0} is unreachable: {1}", host, e.Message));
+                logging.writeToLog(null, String.Format("[resolveIP][Exception] {0} is unreachable: {1}", host, e.Message));
             }
             return null;
         }
 
-        public bool testInternetConnection() {
+        public bool testInternetConnection(bool checkInnerNetwork = false) {
             logging.writeToLog(null, String.Format("[testInternetConnection] Begin"));
-            bool pingable = false;
-            Ping Ping = null;
-            PingReply PingReply = null;
-            try {
-                string PingAddress = "google-public-dns-a.google.com";
-                Ping = new Ping();
-                PingReply = Ping.Send(PingAddress);
-                pingable = (PingReply.Status == IPStatus.Success);
-                logging.writeToLog(null, String.Format("[testInternetConnection] {0} is alive: {1}", PingAddress, PingReply.Address));
-                try {
-                    Ping = new Ping();
-                    PingReply = Ping.Send(vpnData.host);
-                    pingable = (PingReply.Status == IPStatus.Success);
-                    logging.writeToLog(null, String.Format("[testInternetConnection] {0} is alive: {1}",vpnData.host, PingReply.Address));
-                }
-                catch(Exception e) {
-                    logging.writeToLog(null, String.Format("[testInternetConnection] Petrolcard is unreachable"));
-                    error = "VPN szerver nem érhető el";
-                }
+            bool testIC = true;
+            string testingError = "";
+            if(resolveIP("google-public-dns-a.google.com")==null) {
+                testingError = "Nincs internetkapcsolat";
+                testIC = false;
             }
-            catch(Exception e) {
-                logging.writeToLog(null, String.Format("[testInternetConnection] Google is unreachable"));
-                error = "Nincs internetkapcsolat";
+            if(resolveIP(vpnData.host) == null) {
+                testingError = "VPN szerver nem érhető el";
+                testIC = false;
             }
-            return pingable;
+            if(resolveIP(vpnData.test_ip) == null && checkInnerNetwork) {
+                testingError = "Belső hálózat nem érhető el";
+                testIC = false;
+            }
+            error = testingError;
+            logging.writeToLog(null, String.Format("[testInternetConnection] End"));
+            return testIC;
         }
     }
 }

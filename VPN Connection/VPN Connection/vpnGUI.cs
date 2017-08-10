@@ -9,13 +9,12 @@ namespace VPN_Connection {
         private int MValY;
 
         private vpn vpn = new vpn();
-        //private vpnData vpnData = new vpnData();
         private logging logging = new logging();
         private animation Anim = new animation();
         private int vpnPreviousState = 0; //0:not connected, 1: connecting, 2: connected, 3:failed
         public vpnGUI() {
             AppDomain.CurrentDomain.ProcessExit += (AppDomainSender, AppDomainArgs) => {
-                //Windows 10 - Sometimes the tray icon won't dispose after close
+                //Windows 10 - Sometimes the tray icon won't disappear after close
                 //Force to remove before close the app
                 trayIcon.BalloonTipClosed += (sender, args) => {
                     var trayIcon = (NotifyIcon)sender;
@@ -31,7 +30,7 @@ namespace VPN_Connection {
             int attempts = 0;
             //connectToVpn();
             Timer timer = new Timer();
-            timer.Interval = 1;
+            timer.Interval = 10000;
             timer.Tick += (sender, args) => {
                 if (attempts == vpn.vpnData.maxAttempt && vpnPreviousState == 1) {
                     timer.Stop();
@@ -56,6 +55,7 @@ namespace VPN_Connection {
             };
             timer.Start();
             trayIconContextItemState.Enabled = false;
+            //vpn.testInternetConnection(true);
             //this.Opacity = 100;
             //Anim.Shrink(this, 5, 32, 128);
             //HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\NetworkList\Profiles
@@ -92,7 +92,7 @@ namespace VPN_Connection {
                         logging.writeToLog(null, String.Format("[connectToVpn] Connecting"));
                     }
                     vpnPreviousState = 1;
-                    vpn.connectPPTP();
+                    vpn.Dialer();
                     if (vpn.getConnectionStatus() != null) {
                         logging.writeToLog(null, String.Format("[ConnectionStatus] Connected"));
                         Anim.activateNotification(this, notificationIcon, notificationText, 2, vpn.vpnData.notificationLength);
@@ -109,18 +109,17 @@ namespace VPN_Connection {
         }
 
         private bool connectionStatus() {
-            if (vpn.getConnectionStatus()!=null) {
-                logging.writeToLog(null, String.Format("[connectionStatus] VPN connection is active"));
-                return true;
+            bool connection = false;
+            if (vpn.getConnectionStatus()!=null && vpn.testInternetConnection(true)) {
+                connection = true;
             }
             else {
                 if (vpnPreviousState == 2) {
                     vpnPreviousState = 0;
                 }
+                connection = false;
             }
-            logging.writeToLog(null, String.Format("[connectionStatus] VPN connection is not active"));
-            Console.WriteLine(String.Format("[connectionStatus] VPN connection is not active"));
-            return false;
+            return connection;
         }
 
         private void trayIconContextItemDisconnect_Click(object sender, EventArgs e) {
