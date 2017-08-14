@@ -58,11 +58,12 @@ namespace VPN_Connection {
             this.notificationText.AutoSize = true;
             this.notificationText.BackColor = System.Drawing.Color.Transparent;
             this.notificationText.Font = new System.Drawing.Font("Microsoft PhagsPa", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.notificationText.ForeColor = System.Drawing.Color.Firebrick;
-            this.notificationText.Location = new System.Drawing.Point(50, 11);
+            this.notificationText.ForeColor = System.Drawing.Color.CornflowerBlue;
+            this.notificationText.Location = new System.Drawing.Point(38, 11);
             this.notificationText.Name = "notificationText";
-            this.notificationText.Size = new System.Drawing.Size(0, 21);
+            this.notificationText.Size = new System.Drawing.Size(213, 21);
             this.notificationText.TabIndex = 6;
+            this.notificationText.Text = "Csatlakozás folyamatban...";
             this.notificationText.MouseDown += new System.Windows.Forms.MouseEventHandler(this.FormDragStart);
             this.notificationText.MouseMove += new System.Windows.Forms.MouseEventHandler(this.FormDrag);
             this.notificationText.MouseUp += new System.Windows.Forms.MouseEventHandler(this.FormDragEnd);
@@ -70,13 +71,23 @@ namespace VPN_Connection {
             // notificationStatusIcon
             // 
             this.notificationStatusIcon.BackColor = System.Drawing.Color.Transparent;
-            this.notificationStatusIcon.Location = new System.Drawing.Point(5, 4);
+            this.notificationStatusIcon.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.notificationStatusIcon.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.notificationStatusIcon.ErrorImage = null;
+            this.notificationStatusIcon.Image = global::VPN_Connection.Properties.Resources.info;
+            this.notificationStatusIcon.InitialImage = null;
+            this.notificationStatusIcon.Location = new System.Drawing.Point(3, 3);
+            this.notificationStatusIcon.Margin = new System.Windows.Forms.Padding(0);
             this.notificationStatusIcon.Name = "notificationStatusIcon";
-            this.notificationStatusIcon.Size = new System.Drawing.Size(35, 35);
+            this.notificationStatusIcon.Padding = new System.Windows.Forms.Padding(3);
+            this.notificationStatusIcon.Size = new System.Drawing.Size(34, 34);
             this.notificationStatusIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.notificationStatusIcon.TabIndex = 5;
             this.notificationStatusIcon.TabStop = false;
             this.notificationStatusIcon.Click += new System.EventHandler(this.notificationStatusIcon_Click);
+            this.notificationStatusIcon.MouseDown += new System.Windows.Forms.MouseEventHandler(this.StatusIconDragStart);
+            this.notificationStatusIcon.MouseMove += new System.Windows.Forms.MouseEventHandler(this.FormDrag);
+            this.notificationStatusIcon.MouseUp += new System.Windows.Forms.MouseEventHandler(this.FormDragEnd);
             // 
             // StatusIconContextMenu
             // 
@@ -84,7 +95,7 @@ namespace VPN_Connection {
             this.statusIconContextReconnect,
             this.statusIconContextHangUp});
             this.StatusIconContextMenu.Name = "StatusIconContextMenu";
-            this.StatusIconContextMenu.Size = new System.Drawing.Size(155, 70);
+            this.StatusIconContextMenu.Size = new System.Drawing.Size(155, 48);
             // 
             // statusIconContextReconnect
             // 
@@ -104,8 +115,8 @@ namespace VPN_Connection {
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.ClientSize = new System.Drawing.Size(283, 42);
+            this.BackColor = System.Drawing.Color.PowderBlue;
+            this.ClientSize = new System.Drawing.Size(250, 40);
             this.Controls.Add(this.notificationText);
             this.Controls.Add(this.notificationStatusIcon);
             this.ForeColor = System.Drawing.SystemColors.ControlText;

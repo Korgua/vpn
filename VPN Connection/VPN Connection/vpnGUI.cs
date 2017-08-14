@@ -27,10 +27,11 @@ namespace VPN_Connection {
             };
             InitializeComponent();
             this.Location = new Point(Screen.FromPoint(this.Location).WorkingArea.Right - this.Width, 0);
+            this.Anchor = (AnchorStyles.Top | AnchorStyles.Right);
             logging.writeToLog(null, String.Format("[Program] Begin"));
+            this.Opacity = 100;
             establishConnection();
             //vpn.testInternetConnection(true);
-            //this.Opacity = 100;
             //Anim.Shrink(this, 5, 32, 128);
             //HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\NetworkList\Profiles
         }
@@ -53,7 +54,7 @@ namespace VPN_Connection {
                 }
                 else if (vpnPreviousState == 2) {
                     attempts = 0;
-                    if (!connectionStatus()) {
+                    if(!connectionStatus()) {
                         connectToVpn();
                     }
                 }
@@ -69,11 +70,17 @@ namespace VPN_Connection {
             MValX = e.X;
             MValY = e.Y;
         }
+        private void StatusIconDragStart(object sender, MouseEventArgs e) {
+            ToggleMove = true;
+            MValX = e.X + notificationStatusIcon.Padding.Left + SystemInformation.BorderSize.Width;
+            MValY = e.Y + notificationStatusIcon.Padding.Top + SystemInformation.BorderSize.Width;
+        }
         private void FormDragEnd(object sender, MouseEventArgs e) {
             ToggleMove = false;
         }
         private void FormDrag(object sender, MouseEventArgs e) {
             if (ToggleMove) {
+                Console.WriteLine(this.Name);
                 this.SetDesktopLocation(MousePosition.X - MValX, MousePosition.Y - MValY);
             }
         }
@@ -82,31 +89,31 @@ namespace VPN_Connection {
             logging.writeToLog(null, String.Format("[connectToVpn] Begin"));
             logging.writeToLog(null, String.Format("[connectToVpn] vpnPreviousState: {0}", vpnPreviousState));
             if (vpn.getConnectionStatus() == null) {
-                logging.writeToLog(null, String.Format("[ConnectionStatus] Not connected"));
+                logging.writeToLog(null, String.Format("[connectToVpn][ConnectionStatus] Not connected"));
                 if (vpnPreviousState == 3) {
                     logging.writeToLog(null, String.Format("[connectToVpn] Failed to connect"));
                     vpnPreviousState = 3;
-                    Anim.activateNotification(this, notificationStatusIcon, notificationText, 3, vpn.vpnData.notificationLength);
-                    //MessageBox.Show("Csatlakozás sikertelen", vpnData.host, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Anim.activateNotification(this, notificationStatusIcon, notificationText, "stretch", 3, vpn.vpnData.notificationLength);
                 }
                 else {
                     if (vpnPreviousState != 1) {
-                        Anim.activateNotification(this, notificationStatusIcon, notificationText, 1, vpn.vpnData.notificationLength);
+                        Anim.activateNotification(this, notificationStatusIcon, notificationText, "stretch", 1, vpn.vpnData.notificationLength);
                         logging.writeToLog(null, String.Format("[connectToVpn] Connecting"));
                     }
                     vpnPreviousState = 1;
+
                     vpn.Dialer();
                     if (vpn.getConnectionStatus() != null) {
                         logging.writeToLog(null, String.Format("[ConnectionStatus] Connected"));
-                        Anim.activateNotification(this, notificationStatusIcon, notificationText, 2, vpn.vpnData.notificationLength);
+                        Anim.activateNotification(this, notificationStatusIcon, notificationText, "stretch", 2, vpn.vpnData.notificationLength);
                         vpnPreviousState = 2;
                     }
                 }
             }
-            else if (vpn.getConnectionStatus() != null && vpnPreviousState == 0) {
+            else if (connectionStatus()) {
                 logging.writeToLog(null, String.Format("[ConnectionStatus] Already connected"));
                 vpnPreviousState = 2;
-                Anim.activateNotification(this, notificationStatusIcon, notificationText, 2, vpn.vpnData.notificationLength);
+                Anim.activateNotification(this, notificationStatusIcon, notificationText, "stretch", 2, vpn.vpnData.notificationLength);
             }
         }
 
@@ -127,7 +134,7 @@ namespace VPN_Connection {
 
         private void statusIconContextReconnect_Click(object sender, EventArgs e) {
             vpnPreviousState = 0;
-            Anim.activateNotification(this, notificationStatusIcon, notificationText, 1, 5);
+            Anim.activateNotification(this, notificationStatusIcon, notificationText, "stretch", 1, vpn.vpnData.notificationLength);
             establishConnection();
         }
 
@@ -148,7 +155,7 @@ namespace VPN_Connection {
             connectionTesting.Stop();
             while (vpn.getConnectionStatus() != null) ;
             vpnPreviousState = 0;
-            Anim.activateNotification(this, notificationStatusIcon, notificationText,0, 5);
+            Anim.activateNotification(this, notificationStatusIcon, notificationText, "stretch", 0, vpn.vpnData.notificationLength);
         }
     }
 }

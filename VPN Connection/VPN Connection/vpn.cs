@@ -136,9 +136,11 @@ namespace VPN_Connection {
                 testingError = "VPN szerver nem érhető el";
                 testIC = false;
             }
-            if(resolveIP(vpnData.test_ip) == null && checkInnerNetwork) {
-                testingError = "Belső hálózat nem érhető el";
-                testIC = false;
+            if(checkInnerNetwork) {
+                if (resolveIP(vpnData.test_ip) == null) {
+                    testingError = "Belső hálózat nem érhető el";
+                    testIC = false;
+                }
             }
             error = testingError;
             logging.writeToLog(null, String.Format("[testInternetConnection] End"));

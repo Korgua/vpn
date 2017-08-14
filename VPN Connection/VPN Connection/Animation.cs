@@ -10,8 +10,11 @@ namespace VPN_Connection {
         public Color notificationFontColor { get; set; }
         public Color notificationFormColor { get; set; }
         public Image notificationIcon { get; set; }
+
         public string notificationText { get; set; }
         private double maxOpacity = 0.70;
+        private int formOriginalWidth = 250;
+        private int formOriginalHeight = 40;
         public async void FadeIn(Form o, int interval = 80) {
             logging.writeToLog(null, String.Format("[FadeIn] Begin"));
             while (o.Opacity < maxOpacity) {
@@ -42,14 +45,12 @@ namespace VPN_Connection {
                 if (d.Width > width) {
                     d.Width -= 10;
                 }
+                Console.WriteLine("d.height: {0}/{1}, d.width:{2}/{3}", d.Height, height, d.Width, width);
             }
-            Console.WriteLine("Before sleep");
-            System.Threading.Thread.Sleep(3000);
-            Console.WriteLine("After sleep");
+            Console.WriteLine("d.height: {0}, d.width: {1}, height: {2}, width: {3}", d.Height, d.Width, height, width);
             d.Width = width;
             d.Height = height;
             logging.writeToLog(null, String.Format("[Shrink] End"));
-            Stretch(d, 10, 32, 256);
         }
 
         public async void Stretch(Form d, int interval = 80, int height=500, int width=500) {
@@ -68,6 +69,21 @@ namespace VPN_Connection {
             d.Height = height;
             logging.writeToLog(null, String.Format("[Stretch] End"));
         }
+
+        public async void MoveRight(Form d, int interval = 0, int distance = 250) {
+            int currentLeftPosition = d.Location.X;
+            int movingRightIdx = 1;
+            Console.WriteLine("Screen.FromPoint(this.Location).WorkingArea.Right: {0}",Screen.FromPoint(d.Location).WorkingArea.Right);
+            while (distance > movingRightIdx) {
+                await Task.Delay(interval);
+                --distance;
+                d.SetDesktopLocation(currentLeftPosition+movingRightIdx, 0);
+                Console.WriteLine("currentLeftPosition+movingRightIdx: {0}", currentLeftPosition + movingRightIdx);
+                movingRightIdx += 8;
+            }
+        }
+
+
 
         public void changeNotification(int type = 1) {
             switch (type) {
@@ -110,25 +126,42 @@ namespace VPN_Connection {
             logging.writeToLog(data, null);
             data = null;
         }
-        public void activateNotification(Form form, PictureBox pBox, Label label, int type, int interval) {
+        public void activateNotification(Form form, PictureBox pBox, Label label, string style,int vpnStatus, int interval) {
             logging.writeToLog(null, String.Format("[activateNotification] Begin"));
-            changeNotification(type);
+            changeNotification(vpnStatus);
             form.BackColor = notificationFormColor;
             label.ForeColor = notificationFontColor;
             label.BackColor = notificationFormColor;
             label.Text = notificationText;
             pBox.Image = notificationIcon;
-            FadeIn(form, 20);
-            Timer fadeOut = new Timer();
+            switch (style) {
+                case "fade":
+                    FadeIn(form, 20);
+                    break;
+                case "stretch":
+                    Stretch(form, 10, formOriginalHeight, formOriginalWidth);
+                    Console.WriteLine("pBox.Padding: {0}", pBox.Width + pBox.Padding.All);
+                    break;
+            }
+            Timer AnimationControl = new Timer();
             Console.WriteLine("Interval: {0}", interval);
-            fadeOut.Interval = interval;
-            fadeOut.Tick += (sender, args) => {
+            AnimationControl.Interval = interval;
+            AnimationControl.Tick += (sender, args) => {
                 logging.writeToLog(null, String.Format("[activateNotification][FadeOutTicker] Tick"));
                 //FadeOut(form, 20);
-                fadeOut.Stop();
+                switch (style) {
+                    case "fade":
+                        FadeOut(form, 20);
+                        break;
+                    case "stretch":
+                        Shrink(form, 10, form.Height, pBox.Width + pBox.Padding.All * 2);
+                        Console.WriteLine("pBox.Padding: {0}", pBox.Width + pBox.Padding.All);
+                        break;
+                }
+                AnimationControl.Stop();
                 logging.writeToLog(null, String.Format("[activateNotification][FadeOutTicker] End"));
             };
-            fadeOut.Start();
+            AnimationControl.Start();
             logging.writeToLog(null, String.Format("[activateNotification][Ticker] Start"));
             logging.writeToLog(null, String.Format("[activateNotification] End"));
         }
