@@ -71,6 +71,12 @@ namespace VPN_Connection {
 
         public void changeNotification(int type = 1) {
             switch (type) {
+                case 0:
+                    notificationIcon = VPN_Connection.Properties.Resources.error;
+                    notificationFontColor = System.Drawing.Color.Firebrick;
+                    notificationFormColor = System.Drawing.Color.DarkSalmon;
+                    notificationText = "Sikeresen lekapcsolódva";
+                    break;
                 case 1:
                     notificationIcon = VPN_Connection.Properties.Resources.info;
                     notificationFontColor = System.Drawing.Color.CornflowerBlue;
@@ -118,7 +124,7 @@ namespace VPN_Connection {
             fadeOut.Interval = interval;
             fadeOut.Tick += (sender, args) => {
                 logging.writeToLog(null, String.Format("[activateNotification][FadeOutTicker] Tick"));
-                FadeOut(form, 20);
+                //FadeOut(form, 20);
                 fadeOut.Stop();
                 logging.writeToLog(null, String.Format("[activateNotification][FadeOutTicker] End"));
             };

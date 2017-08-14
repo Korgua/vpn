@@ -38,53 +38,20 @@ namespace VPN_Connection {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(vpnGUI));
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
-            this.trayContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.trayIconContextItemState = new System.Windows.Forms.ToolStripMenuItem();
-            this.trayIconContextItemDisconnect = new System.Windows.Forms.ToolStripMenuItem();
-            this.trayIconContextItemExit = new System.Windows.Forms.ToolStripMenuItem();
             this.notificationText = new System.Windows.Forms.Label();
-            this.notificationIcon = new System.Windows.Forms.PictureBox();
-            this.trayContextMenu.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.notificationIcon)).BeginInit();
+            this.notificationStatusIcon = new System.Windows.Forms.PictureBox();
+            this.StatusIconContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.statusIconContextReconnect = new System.Windows.Forms.ToolStripMenuItem();
+            this.statusIconContextHangUp = new System.Windows.Forms.ToolStripMenuItem();
+            ((System.ComponentModel.ISupportInitialize)(this.notificationStatusIcon)).BeginInit();
+            this.StatusIconContextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // trayIcon
             // 
-            this.trayIcon.ContextMenuStrip = this.trayContextMenu;
             this.trayIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("trayIcon.Icon")));
             this.trayIcon.Text = "trayIcon";
             this.trayIcon.Visible = true;
-            // 
-            // trayContextMenu
-            // 
-            this.trayContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.trayIconContextItemState,
-            this.trayIconContextItemDisconnect,
-            this.trayIconContextItemExit});
-            this.trayContextMenu.Name = "trayContextMenu";
-            this.trayContextMenu.Size = new System.Drawing.Size(152, 70);
-            // 
-            // trayIconContextItemState
-            // 
-            this.trayIconContextItemState.Enabled = false;
-            this.trayIconContextItemState.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.trayIconContextItemState.Name = "trayIconContextItemState";
-            this.trayIconContextItemState.Size = new System.Drawing.Size(151, 22);
-            this.trayIconContextItemState.Text = "Várakozás";
-            // 
-            // trayIconContextItemDisconnect
-            // 
-            this.trayIconContextItemDisconnect.Name = "trayIconContextItemDisconnect";
-            this.trayIconContextItemDisconnect.Size = new System.Drawing.Size(151, 22);
-            this.trayIconContextItemDisconnect.Text = "Lekapcsolódás";
-            this.trayIconContextItemDisconnect.Click += new System.EventHandler(this.trayIconContextItemDisconnect_Click);
-            // 
-            // trayIconContextItemExit
-            // 
-            this.trayIconContextItemExit.Name = "trayIconContextItemExit";
-            this.trayIconContextItemExit.Size = new System.Drawing.Size(151, 22);
-            this.trayIconContextItemExit.Text = "Kilépés";
-            this.trayIconContextItemExit.Click += new System.EventHandler(this.kilépésToolStripMenuItem_Click);
             // 
             // notificationText
             // 
@@ -100,18 +67,38 @@ namespace VPN_Connection {
             this.notificationText.MouseMove += new System.Windows.Forms.MouseEventHandler(this.FormDrag);
             this.notificationText.MouseUp += new System.Windows.Forms.MouseEventHandler(this.FormDragEnd);
             // 
-            // notificationIcon
+            // notificationStatusIcon
             // 
-            this.notificationIcon.BackColor = System.Drawing.Color.Transparent;
-            this.notificationIcon.Location = new System.Drawing.Point(5, 4);
-            this.notificationIcon.Name = "notificationIcon";
-            this.notificationIcon.Size = new System.Drawing.Size(35, 35);
-            this.notificationIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.notificationIcon.TabIndex = 5;
-            this.notificationIcon.TabStop = false;
-            this.notificationIcon.MouseDown += new System.Windows.Forms.MouseEventHandler(this.FormDragStart);
-            this.notificationIcon.MouseMove += new System.Windows.Forms.MouseEventHandler(this.FormDrag);
-            this.notificationIcon.MouseUp += new System.Windows.Forms.MouseEventHandler(this.FormDragEnd);
+            this.notificationStatusIcon.BackColor = System.Drawing.Color.Transparent;
+            this.notificationStatusIcon.Location = new System.Drawing.Point(5, 4);
+            this.notificationStatusIcon.Name = "notificationStatusIcon";
+            this.notificationStatusIcon.Size = new System.Drawing.Size(35, 35);
+            this.notificationStatusIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.notificationStatusIcon.TabIndex = 5;
+            this.notificationStatusIcon.TabStop = false;
+            this.notificationStatusIcon.Click += new System.EventHandler(this.notificationStatusIcon_Click);
+            // 
+            // StatusIconContextMenu
+            // 
+            this.StatusIconContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.statusIconContextReconnect,
+            this.statusIconContextHangUp});
+            this.StatusIconContextMenu.Name = "StatusIconContextMenu";
+            this.StatusIconContextMenu.Size = new System.Drawing.Size(155, 70);
+            // 
+            // statusIconContextReconnect
+            // 
+            this.statusIconContextReconnect.Name = "statusIconContextReconnect";
+            this.statusIconContextReconnect.Size = new System.Drawing.Size(154, 22);
+            this.statusIconContextReconnect.Text = "Újracsatlakozás";
+            this.statusIconContextReconnect.Click += new System.EventHandler(this.statusIconContextReconnect_Click);
+            // 
+            // statusIconContextHangUp
+            // 
+            this.statusIconContextHangUp.Name = "statusIconContextHangUp";
+            this.statusIconContextHangUp.Size = new System.Drawing.Size(154, 22);
+            this.statusIconContextHangUp.Text = "Lekapcsolódás";
+            this.statusIconContextHangUp.Click += new System.EventHandler(this.statusIconContextHangUp_Click);
             // 
             // vpnGUI
             // 
@@ -120,7 +107,7 @@ namespace VPN_Connection {
             this.BackColor = System.Drawing.Color.WhiteSmoke;
             this.ClientSize = new System.Drawing.Size(283, 42);
             this.Controls.Add(this.notificationText);
-            this.Controls.Add(this.notificationIcon);
+            this.Controls.Add(this.notificationStatusIcon);
             this.ForeColor = System.Drawing.SystemColors.ControlText;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -136,8 +123,8 @@ namespace VPN_Connection {
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.FormDragStart);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.FormDrag);
             this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.FormDragEnd);
-            this.trayContextMenu.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.notificationIcon)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.notificationStatusIcon)).EndInit();
+            this.StatusIconContextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -145,12 +132,11 @@ namespace VPN_Connection {
 
         #endregion
         public System.Windows.Forms.NotifyIcon trayIcon;
-        public System.Windows.Forms.ContextMenuStrip trayContextMenu;
-        public System.Windows.Forms.ToolStripMenuItem trayIconContextItemState;
-        private System.Windows.Forms.ToolStripMenuItem trayIconContextItemDisconnect;
-        private System.Windows.Forms.PictureBox notificationIcon;
+        private System.Windows.Forms.PictureBox notificationStatusIcon;
         private System.Windows.Forms.Label notificationText;
-        private ToolStripMenuItem trayIconContextItemExit;
+        private ContextMenuStrip StatusIconContextMenu;
+        private ToolStripMenuItem statusIconContextReconnect;
+        private ToolStripMenuItem statusIconContextHangUp;
     }
 }
 

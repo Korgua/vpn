@@ -3,7 +3,8 @@ using System.Drawing;
 using System.Windows.Forms;
 
 namespace VPN_Connection {
-    public partial class vpnGUI :Form {
+    public partial class vpnGUI : Form {
+        private Timer connectionTesting = new Timer();
         private bool ToggleMove;
         private int MValX;
         private int MValY;
@@ -27,15 +28,22 @@ namespace VPN_Connection {
             InitializeComponent();
             this.Location = new Point(Screen.FromPoint(this.Location).WorkingArea.Right - this.Width, 0);
             logging.writeToLog(null, String.Format("[Program] Begin"));
+            establishConnection();
+            //vpn.testInternetConnection(true);
+            //this.Opacity = 100;
+            //Anim.Shrink(this, 5, 32, 128);
+            //HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\NetworkList\Profiles
+        }
+
+        private void establishConnection() {
             int attempts = 0;
             //connectToVpn();
-            Timer timer = new Timer();
-            timer.Interval = 10000;
-            timer.Tick += (sender, args) => {
+            connectionTesting.Interval = 1;
+            connectionTesting.Tick += (sender, args) => {
                 if (attempts == vpn.vpnData.maxAttempt && vpnPreviousState == 1) {
-                    timer.Stop();
+                    connectionTesting.Stop();
                     vpnPreviousState = 3;
-                    logging.writeToLog(null, String.Format("[Ticker] Reached max attempts({0})! Timer stopped",vpn.vpnData.maxAttempt));
+                    logging.writeToLog(null, String.Format("[Ticker] Reached max attempts({0})! Timer stopped", vpn.vpnData.maxAttempt));
                     connectToVpn();
                 }
                 else if (vpnPreviousState < 2) {
@@ -49,17 +57,13 @@ namespace VPN_Connection {
                         connectToVpn();
                     }
                 }
-                if (timer.Interval == 1) {
-                    timer.Interval = vpn.vpnData.stateInterval;
+                if (connectionTesting.Interval == 1) {
+                    connectionTesting.Interval = vpn.vpnData.stateInterval < 3000 ? 3000 : vpn.vpnData.stateInterval;
                 }
             };
-            timer.Start();
-            trayIconContextItemState.Enabled = false;
-            //vpn.testInternetConnection(true);
-            //this.Opacity = 100;
-            //Anim.Shrink(this, 5, 32, 128);
-            //HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\NetworkList\Profiles
+            connectionTesting.Start();
         }
+
         private void FormDragStart(object sender, MouseEventArgs e) {
             ToggleMove = true;
             MValX = e.X;
@@ -69,48 +73,46 @@ namespace VPN_Connection {
             ToggleMove = false;
         }
         private void FormDrag(object sender, MouseEventArgs e) {
-            if(ToggleMove) {
+            if (ToggleMove) {
                 this.SetDesktopLocation(MousePosition.X - MValX, MousePosition.Y - MValY);
             }
         }
 
         public void connectToVpn() {
             logging.writeToLog(null, String.Format("[connectToVpn] Begin"));
-            logging.writeToLog(null, String.Format("[connectToVpn] vpnPreviousState: {0}",vpnPreviousState));
-            if (vpn.getConnectionStatus()==null) {
+            logging.writeToLog(null, String.Format("[connectToVpn] vpnPreviousState: {0}", vpnPreviousState));
+            if (vpn.getConnectionStatus() == null) {
                 logging.writeToLog(null, String.Format("[ConnectionStatus] Not connected"));
                 if (vpnPreviousState == 3) {
                     logging.writeToLog(null, String.Format("[connectToVpn] Failed to connect"));
                     vpnPreviousState = 3;
-                    Anim.activateNotification(this, notificationIcon, notificationText, 3, vpn.vpnData.notificationLength);
+                    Anim.activateNotification(this, notificationStatusIcon, notificationText, 3, vpn.vpnData.notificationLength);
                     //MessageBox.Show("Csatlakozás sikertelen", vpnData.host, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 else {
                     if (vpnPreviousState != 1) {
-                        Anim.activateNotification(this, notificationIcon, notificationText, 1, vpn.vpnData.notificationLength);
-                        trayIconContextItemState.Text = "Csatlakozás";
+                        Anim.activateNotification(this, notificationStatusIcon, notificationText, 1, vpn.vpnData.notificationLength);
                         logging.writeToLog(null, String.Format("[connectToVpn] Connecting"));
                     }
                     vpnPreviousState = 1;
                     vpn.Dialer();
                     if (vpn.getConnectionStatus() != null) {
                         logging.writeToLog(null, String.Format("[ConnectionStatus] Connected"));
-                        Anim.activateNotification(this, notificationIcon, notificationText, 2, vpn.vpnData.notificationLength);
-                        trayIconContextItemState.Text = "Csatlakoztatva";
+                        Anim.activateNotification(this, notificationStatusIcon, notificationText, 2, vpn.vpnData.notificationLength);
                         vpnPreviousState = 2;
                     }
                 }
             }
-            else if (vpn.getConnectionStatus()!=null && vpnPreviousState == 0) {
+            else if (vpn.getConnectionStatus() != null && vpnPreviousState == 0) {
                 logging.writeToLog(null, String.Format("[ConnectionStatus] Already connected"));
                 vpnPreviousState = 2;
-                Anim.activateNotification(this, notificationIcon, notificationText, 2, vpn.vpnData.notificationLength);
+                Anim.activateNotification(this, notificationStatusIcon, notificationText, 2, vpn.vpnData.notificationLength);
             }
         }
 
         private bool connectionStatus() {
             bool connection = false;
-            if (vpn.getConnectionStatus()!=null && vpn.testInternetConnection(true)) {
+            if (vpn.getConnectionStatus() != null && vpn.testInternetConnection(true)) {
                 connection = true;
             }
             else {
@@ -122,12 +124,31 @@ namespace VPN_Connection {
             return connection;
         }
 
-        private void trayIconContextItemDisconnect_Click(object sender, EventArgs e) {
-            vpn.disconnectPPTP();
+
+        private void statusIconContextReconnect_Click(object sender, EventArgs e) {
+            vpnPreviousState = 0;
+            Anim.activateNotification(this, notificationStatusIcon, notificationText, 1, 5);
+            establishConnection();
         }
 
-        private void kilépésToolStripMenuItem_Click(object sender, EventArgs e) {
-            this.Close();
+        private void notificationStatusIcon_Click(object sender, EventArgs e) {
+            if (vpnPreviousState == 0 || vpnPreviousState == 3) {
+                statusIconContextReconnect.Enabled = true;
+                statusIconContextHangUp.Enabled = false;
+            }
+            else if(vpnPreviousState == 2){
+                statusIconContextHangUp.Enabled = true;
+                statusIconContextReconnect.Enabled = false;
+            }
+            StatusIconContextMenu.Show(Cursor.Position);
+        }
+
+        private void statusIconContextHangUp_Click(object sender, EventArgs e) {
+            vpn.disconnectPPTP();
+            connectionTesting.Stop();
+            while (vpn.getConnectionStatus() != null) ;
+            vpnPreviousState = 0;
+            Anim.activateNotification(this, notificationStatusIcon, notificationText,0, 5);
         }
     }
 }
