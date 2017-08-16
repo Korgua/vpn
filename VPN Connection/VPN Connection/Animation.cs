@@ -10,6 +10,8 @@ namespace VPN_Connection {
         public Color notificationFontColor { get; set; }
         public Color notificationFormColor { get; set; }
         public Image notificationIcon { get; set; }
+        public bool animationInComplete = true;
+        public bool animationOutComplete = true;
 
         public string notificationText { get; set; }
         private double maxOpacity = 0.70;
@@ -36,6 +38,12 @@ namespace VPN_Connection {
         }
 
         public async void Shrink(Form d, int interval = 80, int height = 128, int width = 128) {
+            Console.WriteLine("Wait for animation complete START: {0} {1}",animationOutComplete, new DateTimeOffset(DateTime.Now));
+            while(!animationOutComplete) {
+                await Task.Delay(100);
+            }
+            Console.WriteLine("Wait for animation complete END:: {0} {1}", animationOutComplete, new DateTimeOffset(DateTime.Now));
+            animationOutComplete = false;
             logging.writeToLog(null, String.Format("[Shrink] Begin"));
             while (d.Height > height || d.Width > width) {
                 await Task.Delay(interval);
@@ -45,18 +53,22 @@ namespace VPN_Connection {
                 if (d.Width > width) {
                     d.Width -= 10;
                 }
-                Console.WriteLine("d.height: {0}/{1}, d.width:{2}/{3}", d.Height, height, d.Width, width);
             }
-            Console.WriteLine("d.height: {0}, d.width: {1}, height: {2}, width: {3}", d.Height, d.Width, height, width);
             d.Width = width;
             d.Height = height;
+            animationOutComplete = true;
             logging.writeToLog(null, String.Format("[Shrink] End"));
         }
 
         public async void Stretch(Form d, int interval = 80, int height=500, int width=500) {
+            Console.WriteLine("Wait for animation complete START: {0} {1}", animationInComplete, new DateTimeOffset(DateTime.Now));
+            while(!animationInComplete) {
+                await Task.Delay(100);
+            }
+            Console.WriteLine("Wait for animation complete END:: {0} {1}", animationInComplete, new DateTimeOffset(DateTime.Now));
+            animationInComplete = false;
             logging.writeToLog(null, String.Format("[Stretch] Begin"));
             while (d.Height < height || d.Width< width) {
-                logging.writeToLog(null, String.Format("[Stretch] d.height: {0}/{1}, d.width:{2}/{3}", d.Height, height, d.Width, width)); ;
                 await Task.Delay(interval);
                 if (d.Height < height) {
                     d.Height += 10;
@@ -67,6 +79,7 @@ namespace VPN_Connection {
             }
             d.Width = width;
             d.Height = height;
+            animationInComplete = true;
             logging.writeToLog(null, String.Format("[Stretch] End"));
         }
 
