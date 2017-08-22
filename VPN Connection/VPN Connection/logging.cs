@@ -9,6 +9,7 @@ namespace VPN_Connection {
         List<string> loggingExc = new List<string>();
         private string logPath = AppDomain.CurrentDomain.BaseDirectory + @"\\log"; //@".\\log\vpn_";
         private string actualFileName;
+        private bool logInConsole = true;
         public logging() {
             createLogFile();
         }
@@ -41,6 +42,9 @@ namespace VPN_Connection {
                         try {
                             StreamWriter log = new StreamWriter(logPath + actualFileName, true);
                             log.WriteLine(logDateStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t------------   Log Start   ------------"));
+                            if (logInConsole) {
+                            Console.WriteLine(logDateStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t------------   Log Start   ------------"));
+                            }
                             log.Close();
                             return true;
                         }
@@ -71,15 +75,24 @@ namespace VPN_Connection {
                         foreach (string s in multiline) {
                             if (isFirst) {
                                 log.WriteLine(logStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t" + s));
+                                if (logInConsole) {
+                                    Console.WriteLine(logStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t" + s));
+                                }
                                 isFirst = false;
                             }
-                            else
+                            else {
                                 log.WriteLine(logStart.ToString("                       ") + ("\t" + s));
+                                if (logInConsole) {
+                                    Console.WriteLine(logStart.ToString("                       ") + ("\t" + s));
+                                }
+                            }
                         }
                     }
                     else if (line != null) {
-                        Console.WriteLine(line);
                         log.WriteLine(logStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t" + line));
+                        if (logInConsole) {
+                            Console.WriteLine(logStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t" + line));
+                        }
                     }
                     else {
                         log.WriteLine();

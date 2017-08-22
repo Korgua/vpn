@@ -59,7 +59,7 @@ namespace VPN_Connection {
                     }
                 }
                 if (connectionTesting.Interval == 1) {
-                    connectionTesting.Interval = vpn.vpnData.stateInterval < 3000 ? 3000 : vpn.vpnData.stateInterval;
+                    connectionTesting.Interval = vpn.vpnData.stateInterval < 30000 ? 30000 : vpn.vpnData.stateInterval;
                 }
             };
             connectionTesting.Start();
@@ -80,7 +80,6 @@ namespace VPN_Connection {
         }
         private void FormDrag(object sender, MouseEventArgs e) {
             if (ToggleMove) {
-                Console.WriteLine(this.Name);
                 this.SetDesktopLocation(MousePosition.X - MValX, MousePosition.Y - MValY);
             }
         }
@@ -93,11 +92,11 @@ namespace VPN_Connection {
                 if (vpnPreviousState == 3) {
                     logging.writeToLog(null, String.Format("[connectToVpn] Failed to connect"));
                     vpnPreviousState = 3;
-                    Anim.activateNotification(this, notificationStatusIcon, notificationText, "stretch", 3, vpn.vpnData.notificationLength);
+                    Anim.activateNotification(this, notificationStatusIcon, notificationText, "fade", 3, vpn.vpnData.notificationLength);
                 }
                 else {
                     if (vpnPreviousState != 1) {
-                        Anim.activateNotification(this, notificationStatusIcon, notificationText, "stretch", 1, vpn.vpnData.notificationLength);
+                        Anim.activateNotification(this, notificationStatusIcon, notificationText, "fade", 1, vpn.vpnData.notificationLength);
                         logging.writeToLog(null, String.Format("[connectToVpn] Connecting"));
                     }
                     vpnPreviousState = 1;
@@ -105,7 +104,7 @@ namespace VPN_Connection {
                     vpn.Dialer();
                     if (vpn.getConnectionStatus() != null) {
                         logging.writeToLog(null, String.Format("[ConnectionStatus] Connected"));
-                        Anim.activateNotification(this, notificationStatusIcon, notificationText, "stretch", 2, vpn.vpnData.notificationLength);
+                        Anim.activateNotification(this, notificationStatusIcon, notificationText, "fade", 2, vpn.vpnData.notificationLength);
                         vpnPreviousState = 2;
                     }
                 }
@@ -113,7 +112,7 @@ namespace VPN_Connection {
             else if (connectionStatus()) {
                 logging.writeToLog(null, String.Format("[ConnectionStatus] Already connected"));
                 vpnPreviousState = 2;
-                Anim.activateNotification(this, notificationStatusIcon, notificationText, "stretch", 2, vpn.vpnData.notificationLength);
+                Anim.activateNotification(this, notificationStatusIcon, notificationText, "fade", 2, vpn.vpnData.notificationLength);
             }
         }
 
@@ -134,7 +133,7 @@ namespace VPN_Connection {
 
         private void statusIconContextReconnect_Click(object sender, EventArgs e) {
             vpnPreviousState = 0;
-            Anim.activateNotification(this, notificationStatusIcon, notificationText, "stretch", 1, vpn.vpnData.notificationLength);
+            Anim.activateNotification(this, notificationStatusIcon, notificationText, "fade", 1, vpn.vpnData.notificationLength);
             establishConnection();
         }
 
@@ -153,9 +152,8 @@ namespace VPN_Connection {
         private void statusIconContextHangUp_Click(object sender, EventArgs e) {
             vpn.disconnectPPTP();
             connectionTesting.Stop();
-            while (vpn.getConnectionStatus() != null) ;
             vpnPreviousState = 0;
-            Anim.activateNotification(this, notificationStatusIcon, notificationText, "stretch", 0, vpn.vpnData.notificationLength);
+            Anim.activateNotification(this, notificationStatusIcon, notificationText, "fade", 0, vpn.vpnData.notificationLength);
         }
     }
 }

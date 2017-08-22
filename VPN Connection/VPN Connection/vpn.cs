@@ -33,7 +33,6 @@ namespace VPN_Connection {
             }
             catch(Exception e) {
                 logging.writeToLog(null, String.Format("[ConnectToPPTP][Create Phonebook] Exception found: {0}", e.Message));
-                Console.WriteLine(e.Message);
                 return null;
             }
 
@@ -44,13 +43,11 @@ namespace VPN_Connection {
             }
             catch(Exception e) {
                 logging.writeToLog(null, String.Format("[ConnectToPPTP][Open Phonebook] Exception found: {0}", e.Message));
-                Console.WriteLine(e.Message);
                 return null;
             }
             RasDevice device = RasDevice.GetDevices().Where(o => o.Name.Contains("PPTP")).FirstOrDefault();
             if(device == null) {
                 logging.writeToLog(null, String.Format("[ConnectToPPTP][Device] Useable device for VPN not found"));
-                Console.WriteLine(String.Format("[ConnectToPPTP][Device] Useable device for VPN not found"));
 
             }
             RasEntry entry = RasEntry.CreateVpnEntry(vpnData.entryName, ip, RasVpnStrategy.PptpFirst, device);
@@ -60,7 +57,6 @@ namespace VPN_Connection {
             }
             catch(Exception e) {
                 logging.writeToLog(null, String.Format("[ConnectToPPTP][Add phonebook entry] Exception found: {0}", e.Message));
-                Console.WriteLine(String.Format("[ConnectToPPTP][Add phonebook entry] Exception found: {0}", e.Message));
                 return null;
             }
             return book;
@@ -76,12 +72,12 @@ namespace VPN_Connection {
                 dialer.Credentials = new NetworkCredential(vpnData.username, vpnData.password);
                 dialer.EntryName = vpnData.entryName;
                 try {
-                    dialer.Dial();
+                    //dialer.Dial();
+                    dialer.DialAsync();
                     logging.writeToLog(null, String.Format("Dialer] Success"));
                 }
                 catch(Exception e) {
                     logging.writeToLog(null, String.Format("[Dialer][Exception] {0}", e.Message));
-                    Console.WriteLine(String.Format("[Dialer][Exception] {0}", e.Message));
                 }
             }
             book = null;
@@ -91,7 +87,7 @@ namespace VPN_Connection {
         public void disconnectPPTP() {
             RasConnection conn;
             if((conn = getConnectionStatus()) != null) {
-                conn.HangUp();
+                conn.HangUp(true);
                 logging.writeToLog(null, String.Format("[disconnectPPTP] Disconnect Success"));
             }
             conn = null;

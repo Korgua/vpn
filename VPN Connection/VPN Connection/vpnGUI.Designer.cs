@@ -43,6 +43,7 @@ namespace VPN_Connection {
             this.StatusIconContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.statusIconContextReconnect = new System.Windows.Forms.ToolStripMenuItem();
             this.statusIconContextHangUp = new System.Windows.Forms.ToolStripMenuItem();
+            this.notificationTextExtend = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.notificationStatusIcon)).BeginInit();
             this.StatusIconContextMenu.SuspendLayout();
             this.SuspendLayout();
@@ -59,7 +60,7 @@ namespace VPN_Connection {
             this.notificationText.BackColor = System.Drawing.Color.Transparent;
             this.notificationText.Font = new System.Drawing.Font("Microsoft PhagsPa", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.notificationText.ForeColor = System.Drawing.Color.CornflowerBlue;
-            this.notificationText.Location = new System.Drawing.Point(38, 11);
+            this.notificationText.Location = new System.Drawing.Point(38, 1);
             this.notificationText.Name = "notificationText";
             this.notificationText.Size = new System.Drawing.Size(213, 21);
             this.notificationText.TabIndex = 6;
@@ -111,12 +112,21 @@ namespace VPN_Connection {
             this.statusIconContextHangUp.Text = "Lekapcsolódás";
             this.statusIconContextHangUp.Click += new System.EventHandler(this.statusIconContextHangUp_Click);
             // 
+            // notificationTextExtend
+            // 
+            this.notificationTextExtend.AutoSize = true;
+            this.notificationTextExtend.Location = new System.Drawing.Point(40, 24);
+            this.notificationTextExtend.Name = "notificationTextExtend";
+            this.notificationTextExtend.Size = new System.Drawing.Size(0, 13);
+            this.notificationTextExtend.TabIndex = 7;
+            // 
             // vpnGUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.PowderBlue;
             this.ClientSize = new System.Drawing.Size(250, 40);
+            this.Controls.Add(this.notificationTextExtend);
             this.Controls.Add(this.notificationText);
             this.Controls.Add(this.notificationStatusIcon);
             this.ForeColor = System.Drawing.SystemColors.ControlText;
@@ -148,6 +158,7 @@ namespace VPN_Connection {
         private ContextMenuStrip StatusIconContextMenu;
         private ToolStripMenuItem statusIconContextReconnect;
         private ToolStripMenuItem statusIconContextHangUp;
+        private Label notificationTextExtend;
     }
 }
 

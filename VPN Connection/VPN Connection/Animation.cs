@@ -10,13 +10,14 @@ namespace VPN_Connection {
         public Color notificationFontColor { get; set; }
         public Color notificationFormColor { get; set; }
         public Image notificationIcon { get; set; }
-        public bool animationInComplete = true;
-        public bool animationOutComplete = true;
-
         public string notificationText { get; set; }
+
+        private Timer AnimationTimer = new Timer();
         private double maxOpacity = 0.70;
         private int formOriginalWidth = 250;
         private int formOriginalHeight = 40;
+        private int pictureBoxDimension = 32;
+
         public async void FadeIn(Form o, int interval = 80) {
             logging.writeToLog(null, String.Format("[FadeIn] Begin"));
             while (o.Opacity < maxOpacity) {
@@ -27,23 +28,103 @@ namespace VPN_Connection {
             logging.writeToLog(null, String.Format("[FadeIn] End"));
         }
 
-        public async void FadeOut(Form o, int interval = 80) {
+        public async void FadeOut(Form o, double min, int interval = 80) {
+            min /= 100;
             logging.writeToLog(null, String.Format("[FadeOut] Begin"));
-            while (o.Opacity > 0.0) {
+            while (o.Opacity > min) {
                 await Task.Delay(interval);
                 o.Opacity -= 0.05;
             }
-            o.Opacity = 0;
+            logging.writeToLog(null, String.Format("[FadeOut] Before opacity = min"));
+
+            o.Opacity = min;
+            TimerShrink(o, 10, o.Height, pictureBoxDimension);
             logging.writeToLog(null, String.Format("[FadeOut] End"));
         }
 
-        public async void Shrink(Form d, int interval = 80, int height = 128, int width = 128) {
-            Console.WriteLine("Wait for animation complete START: {0} {1}",animationOutComplete, new DateTimeOffset(DateTime.Now));
-            while(!animationOutComplete) {
-                await Task.Delay(100);
+        public animation(int width=250, int height = 40, double opacity = 0.7) {
+            formOriginalHeight = height;
+            formOriginalWidth = width;
+            maxOpacity = opacity;
+        }
+
+        public void TimerShrink(Form d, int interval = 80, int height = 128, int width = 128) {
+            logging.writeToLog(null, String.Format("[TimerShrink] Begin"));
+            d.Width = formOriginalWidth;
+            d.Height = formOriginalHeight;
+            Timer TimerShrink = new Timer();
+            TimerShrink.Interval = interval;
+            TimerShrink.Tick += (sender, args) => {
+                    if (d.Height > height) {
+                        d.Height -= 10;
+                    }
+                    if (d.Width > width) {
+                        d.Width -= 10;
+                    }
+                    if (d.Width <= width && d.Height <= height) {
+                        d.Width = width;
+                        d.Height = height;
+                        TimerShrink.Stop();
+                    }
+            };
+            TimerShrink.Start();
+            logging.writeToLog(null, String.Format("[TimerShrink] End"));
+        }
+
+        public void TimerStretch(Form d, int interval = 80, int height = 128, int width = 128) {
+            logging.writeToLog(null, String.Format("[TimerStretch] Begin"));
+            Timer TimerStretch = new Timer();
+            TimerStretch.Interval = interval;
+            TimerStretch.Tick += (sender, args) => {
+                    if (d.Height < height) {
+                        d.Height += 10;
+                    }
+                    if (d.Width < width) {
+                        d.Width += 10;
+                    }
+                    if (d.Width >= width && d.Height >= height) {
+                        d.Width = width;
+                        d.Height = height;
+                        TimerStretch.Stop();
+                    }
+            };
+            TimerStretch.Start();
+            logging.writeToLog(null, String.Format("[TimerStretch] End"));
+        }
+        public void SleepShrink(Form d, int interval = 80, int height = 128, int width = 128) {
+            d.Width = formOriginalWidth;
+            d.Height = formOriginalHeight;
+            logging.writeToLog(null, String.Format("[SleepShrink] Begin"));
+            while (d.Height > height || d.Width > width) {
+                System.Threading.Thread.Sleep(interval);
+                if (d.Height > height) {
+                    d.Height -= 10;
+                }
+                if (d.Width > width) {
+                    d.Width -= 10;
+                }
             }
-            Console.WriteLine("Wait for animation complete END:: {0} {1}", animationOutComplete, new DateTimeOffset(DateTime.Now));
-            animationOutComplete = false;
+            d.Width = width;
+            d.Height = height;
+            logging.writeToLog(null, String.Format("[SleepShrink] End"));
+        }
+        public void SleepStretch(Form d, int interval = 80, int height = 500, int width = 500) {
+            logging.writeToLog(null, String.Format("[SleepStretch] Begin"));
+            while (d.Height < height || d.Width < width) {
+                System.Threading.Thread.Sleep(interval);
+                if (d.Height < height) {
+                    d.Height += 10;
+                }
+                if (d.Width < width) {
+                    d.Width += 10;
+                }
+            }
+            d.Width = width;
+            d.Height = height;
+            logging.writeToLog(null, String.Format("[SleepStretch] End"));
+        }
+
+        public async void Shrink(Form d, int interval = 80, int height = 128, int width = 128) {
             logging.writeToLog(null, String.Format("[Shrink] Begin"));
             while (d.Height > height || d.Width > width) {
                 await Task.Delay(interval);
@@ -56,17 +137,9 @@ namespace VPN_Connection {
             }
             d.Width = width;
             d.Height = height;
-            animationOutComplete = true;
             logging.writeToLog(null, String.Format("[Shrink] End"));
         }
-
         public async void Stretch(Form d, int interval = 80, int height=500, int width=500) {
-            Console.WriteLine("Wait for animation complete START: {0} {1}", animationInComplete, new DateTimeOffset(DateTime.Now));
-            while(!animationInComplete) {
-                await Task.Delay(100);
-            }
-            Console.WriteLine("Wait for animation complete END:: {0} {1}", animationInComplete, new DateTimeOffset(DateTime.Now));
-            animationInComplete = false;
             logging.writeToLog(null, String.Format("[Stretch] Begin"));
             while (d.Height < height || d.Width< width) {
                 await Task.Delay(interval);
@@ -79,19 +152,16 @@ namespace VPN_Connection {
             }
             d.Width = width;
             d.Height = height;
-            animationInComplete = true;
             logging.writeToLog(null, String.Format("[Stretch] End"));
         }
 
         public async void MoveRight(Form d, int interval = 0, int distance = 250) {
             int currentLeftPosition = d.Location.X;
             int movingRightIdx = 1;
-            Console.WriteLine("Screen.FromPoint(this.Location).WorkingArea.Right: {0}",Screen.FromPoint(d.Location).WorkingArea.Right);
             while (distance > movingRightIdx) {
                 await Task.Delay(interval);
                 --distance;
                 d.SetDesktopLocation(currentLeftPosition+movingRightIdx, 0);
-                Console.WriteLine("currentLeftPosition+movingRightIdx: {0}", currentLeftPosition + movingRightIdx);
                 movingRightIdx += 8;
             }
         }
@@ -141,40 +211,48 @@ namespace VPN_Connection {
         }
         public void activateNotification(Form form, PictureBox pBox, Label label, string style,int vpnStatus, int interval) {
             logging.writeToLog(null, String.Format("[activateNotification] Begin"));
+
+            AnimationTimer.Stop();
+            AnimationTimer.Interval = interval;
+
             changeNotification(vpnStatus);
             form.BackColor = notificationFormColor;
+            form.Width = formOriginalWidth;
+            form.Height = formOriginalHeight;
             label.ForeColor = notificationFontColor;
             label.BackColor = notificationFormColor;
             label.Text = notificationText;
             pBox.Image = notificationIcon;
+            pictureBoxDimension = pBox.Width + pBox.Padding.All * 2;
+            form.Opacity = maxOpacity;
+
             switch (style) {
                 case "fade":
                     FadeIn(form, 20);
                     break;
                 case "stretch":
                     Stretch(form, 10, formOriginalHeight, formOriginalWidth);
-                    Console.WriteLine("pBox.Padding: {0}", pBox.Width + pBox.Padding.All);
                     break;
             }
-            Timer AnimationControl = new Timer();
-            Console.WriteLine("Interval: {0}", interval);
-            AnimationControl.Interval = interval;
-            AnimationControl.Tick += (sender, args) => {
-                logging.writeToLog(null, String.Format("[activateNotification][FadeOutTicker] Tick"));
+
+            AnimationTimer.Tick += (sender, args) => {
+                logging.writeToLog(null, String.Format("[activateNotification][Ticker] Tick"));
                 //FadeOut(form, 20);
                 switch (style) {
                     case "fade":
-                        FadeOut(form, 20);
+                        FadeOut(form, 50, 20);
                         break;
                     case "stretch":
-                        Shrink(form, 10, form.Height, pBox.Width + pBox.Padding.All * 2);
-                        Console.WriteLine("pBox.Padding: {0}", pBox.Width + pBox.Padding.All);
+                        Shrink(form, 10, form.Height, pictureBoxDimension);
                         break;
                 }
-                AnimationControl.Stop();
-                logging.writeToLog(null, String.Format("[activateNotification][FadeOutTicker] End"));
+                AnimationTimer.Stop();
+                logging.writeToLog(null, String.Format("[activateNotification][Ticker] End"));
             };
-            AnimationControl.Start();
+            //System.Threading.Thread.Sleep(interval);
+            //SleepShrink(form, 10, form.Height, pBox.Width + pBox.Padding.All * 2);
+
+            AnimationTimer.Start();
             logging.writeToLog(null, String.Format("[activateNotification][Ticker] Start"));
             logging.writeToLog(null, String.Format("[activateNotification] End"));
         }
