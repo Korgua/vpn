@@ -29,10 +29,7 @@ namespace VPN_Connection {
             this.Location = new Point(Screen.FromPoint(this.Location).WorkingArea.Right - this.Width, 0);
             this.Anchor = (AnchorStyles.Top | AnchorStyles.Right);
             logging.writeToLog(null, String.Format("[Program] Begin"));
-            this.Opacity = 100;
             establishConnection();
-            //vpn.testInternetConnection(true);
-            //Anim.Shrink(this, 5, 32, 128);
             //HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\NetworkList\Profiles
         }
 
@@ -87,11 +84,12 @@ namespace VPN_Connection {
         public void connectToVpn() {
             logging.writeToLog(null, String.Format("[connectToVpn] Begin"));
             logging.writeToLog(null, String.Format("[connectToVpn] vpnPreviousState: {0}", vpnPreviousState));
+
+
             if (vpn.getConnectionStatus() == null) {
                 logging.writeToLog(null, String.Format("[connectToVpn][ConnectionStatus] Not connected"));
                 if (vpnPreviousState == 3) {
                     logging.writeToLog(null, String.Format("[connectToVpn] Failed to connect"));
-                    vpnPreviousState = 3;
                     Anim.activateNotification(this, notificationStatusIcon, notificationText, "fade", 3, vpn.vpnData.notificationLength);
                 }
                 else {
@@ -100,7 +98,6 @@ namespace VPN_Connection {
                         logging.writeToLog(null, String.Format("[connectToVpn] Connecting"));
                     }
                     vpnPreviousState = 1;
-
                     vpn.Dialer();
                     if (vpn.getConnectionStatus() != null) {
                         logging.writeToLog(null, String.Format("[ConnectionStatus] Connected"));
@@ -117,17 +114,15 @@ namespace VPN_Connection {
         }
 
         private bool connectionStatus() {
-            bool connection = false;
             if (vpn.getConnectionStatus() != null && vpn.testInternetConnection(true)) {
-                connection = true;
+                return true;
             }
             else {
                 if (vpnPreviousState == 2) {
                     vpnPreviousState = 0;
                 }
-                connection = false;
+                return false;
             }
-            return connection;
         }
 
 

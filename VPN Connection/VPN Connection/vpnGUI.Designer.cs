@@ -135,7 +135,7 @@ namespace VPN_Connection {
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "vpnGUI";
-            this.Opacity = 0D;
+            this.Opacity = 0.7D;
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
