@@ -103,13 +103,12 @@ namespace VPN_Connection {
             return null;
         }
 
-        public IPAddress resolveIP(string host) {
-            logging.writeToLog(null, String.Format("[resolveIP] Host: {0}",host));
+        public IPAddress resolveIP(string host) { 
             try {
                 using(Ping Ping = new Ping()) {
                     PingReply PingReply = Ping.Send(host);
                     if(PingReply.Status == IPStatus.Success) {
-                        logging.writeToLog(null, String.Format("[resolveIP] Host found, IP address: {0}",PingReply.Address));
+                        logging.writeToLog(null, String.Format("[resolveIP] {0} found, IP address: {1}",host,PingReply.Address));
                         return PingReply.Address;
                     }
                 }
@@ -122,25 +121,22 @@ namespace VPN_Connection {
 
         public bool testInternetConnection(bool checkInnerNetwork = false) {
             logging.writeToLog(null, String.Format("[testInternetConnection] Begin"));
-            bool testIC = true;
-            string testingError = "";
             if(resolveIP("google-public-dns-a.google.com")==null) {
-                testingError = "Nincs internetkapcsolat";
-                testIC = false;
+                error = "Nincs internetkapcsolat";
+                return false;
             }
             if(resolveIP(vpnData.host) == null) {
-                testingError = "VPN szerver nem érhető el";
-                testIC = false;
+                error = "VPN szerver nem érhető el";
+                return false;
             }
             if(checkInnerNetwork) {
                 if (resolveIP(vpnData.test_ip) == null) {
-                    testingError = "Belső hálózat nem érhető el";
-                    testIC = false;
+                    error = "Belső hálózat nem érhető el";
+                    return false;
                 }
             }
-            error = testingError;
             logging.writeToLog(null, String.Format("[testInternetConnection] End"));
-            return testIC;
+            return true;
         }
     }
 }

@@ -63,6 +63,9 @@ namespace VPN_Connection {
             catch(Exception e) {
                 loggingExc.Add(e.Message);
             }
+            foreach(string s in loggingExc) {
+                Console.WriteLine(s);
+            }
             return false;
         }
         public void writeToLog(List<string> multiline, string line) {
@@ -101,13 +104,15 @@ namespace VPN_Connection {
                         log.Close();
                     }
                     catch (Exception e) {
-                        loggingExc.Add(e.Message);
+                        loggingExc.Add("Closing log file exception: "+e.Message);
                     }
                 }
                 catch(Exception e) {
-                    Console.WriteLine(e.Message);
-                    loggingExc.Add(e.Message);
+                    loggingExc.Add("Writing to log file exception: "+e.Message+" --> "+line);
                 }
+            }
+            foreach (string s in loggingExc) {
+                Console.WriteLine(s);
             }
         }
     }

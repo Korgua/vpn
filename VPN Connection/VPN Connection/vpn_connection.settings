@@ -24,7 +24,7 @@
       <Value Profile="(Default)">5</Value>
     </Setting>
     <Setting Name="checking_state_interval" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">10</Value>
+      <Value Profile="(Default)">5</Value>
     </Setting>
     <Setting Name="silent_mode_start" Type="System.TimeSpan" Scope="User">
       <Value Profile="(Default)">00:00:00</Value>
