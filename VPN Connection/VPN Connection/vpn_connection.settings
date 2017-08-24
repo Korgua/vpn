@@ -21,7 +21,7 @@
       <Value Profile="(Default)">5</Value>
     </Setting>
     <Setting Name="max_attempt_to_reconnect" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">10</Value>
+      <Value Profile="(Default)">5</Value>
     </Setting>
     <Setting Name="checking_state_interval" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">10</Value>

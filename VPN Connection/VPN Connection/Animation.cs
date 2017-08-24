@@ -14,30 +14,32 @@ namespace VPN_Connection {
         public string notificationTextExtend { get; set; }
 
         private Timer AnimationTimer = new Timer();
-        private double maxOpacity = 0.70;
+        private Form formOriginal;
+        private double formMaxOpacity = 0.70;
         private int formOriginalWidth = 250;
         private int formOriginalHeight = 40;
-        private int pictureBoxDimension = 32;
+        private int formPictureBoxDimension = 32;
+        private int formInterval = 10;
 
         public animation(int width = 250, int height = 40, double opacity = 0.7) {
             formOriginalHeight = height;
             formOriginalWidth = width;
-            maxOpacity = opacity;
+            formMaxOpacity = opacity;
         }
 
-        public async void Shrink(Form d, int interval = 80, int height = 128, int width = 128) {
+        public async void Shrink(Form d, int interval = 80) {
             logging.writeToLog(null, String.Format("[Shrink] Begin"));
-            while (d.Height > height || d.Width > width) {
+            while (d.Height > formOriginalHeight || d.Width > formPictureBoxDimension) {
                 await Task.Delay(interval);
-                if (d.Height > height) {
+                if (d.Height > formOriginalHeight) {
                     d.Height -= 10;
                 }
-                if (d.Width > width) {
+                if (d.Width > formPictureBoxDimension) {
                     d.Width -= 10;
                 }
             }
-            d.Width = width;
-            d.Height = height;
+            d.Width = formPictureBoxDimension;
+            d.Height = formOriginalHeight;
             logging.writeToLog(null, String.Format("[Shrink] End"));
         }
         public async void Stretch(Form d, int interval = 80, int height=500, int width=500) {
@@ -110,37 +112,55 @@ namespace VPN_Connection {
             logging.writeToLog(data, null);
             data = null;
         }
+
+        public void testing(Object obj, EventArgs args) {
+            logging.writeToLog(null, String.Format("[activateNotification][Ticker] Tick"));
+            Shrink(formOriginal, formInterval);
+            Console.WriteLine("testing...");
+            AnimationTimer.Stop();
+            AnimationTimer.Tick -= testing;
+            logging.writeToLog(null, String.Format("[activateNotification][Ticker] End"));
+        }
+
+
         public void activateNotification(Form form, PictureBox pBox, Label NotificationText, /*Label NotificationTextExtend,*/ string style,int vpnStatus, int interval) {
             logging.writeToLog(null, String.Format("[activateNotification] Begin"));
+            Console.WriteLine(String.Format("[activateNotification] Begin"));
 
             AnimationTimer.Stop();
+            AnimationTimer.Dispose();
             AnimationTimer.Interval = interval;
 
             changeNotification(vpnStatus);
+
             form.BackColor = notificationFormColor;
             form.Width = formOriginalWidth;
             form.Height = formOriginalHeight;
-
+            formInterval = interval;
+            formOriginal = form;
+            
             NotificationText.ForeColor = notificationFontColor;
             NotificationText.BackColor = notificationFormColor;
             NotificationText.Text = notificationText;
-/*
-            NotificationTextExtend.ForeColor = notificationFontColor;
-            NotificationTextExtend.BackColor = notificationFormColor;
-            NotificationTextExtend.Text = notificationTextExtend;
-            */
+            /*
+                        NotificationTextExtend.ForeColor = notificationFontColor;
+                        NotificationTextExtend.BackColor = notificationFormColor;
+                        NotificationTextExtend.Text = notificationTextExtend;
+                        */
             pBox.Image = notificationIcon;
-            pictureBoxDimension = pBox.Width + pBox.Padding.All * 2;
-            form.Opacity = maxOpacity;
-
-            AnimationTimer.Tick += (sender, args) => {
-                logging.writeToLog(null, String.Format("[activateNotification][Ticker] Tick"));
-                Shrink(form, 10, form.Height, pictureBoxDimension);
-                AnimationTimer.Stop();
-                logging.writeToLog(null, String.Format("[activateNotification][Ticker] End"));
-            };
+            formPictureBoxDimension = pBox.Width + pBox.Padding.All * 2;
+            form.Opacity = formMaxOpacity;
+            AnimationTimer.Tick += testing;
+            /*AnimationTimer.Tick += (sender, args) => {
+                 logging.writeToLog(null, String.Format("[activateNotification][Ticker] Tick"));
+                 Console.WriteLine("Ticker: {0}", tick++);
+                 Shrink(form, 10);
+                 AnimationTimer.Stop();
+                 logging.writeToLog(null, String.Format("[activateNotification][Ticker] End"));
+             };*/
 
             AnimationTimer.Start();
+            Console.WriteLine(String.Format("[activateNotification] End"));
             logging.writeToLog(null, String.Format("[activateNotification][Ticker] Start"));
             logging.writeToLog(null, String.Format("[activateNotification] End"));
         }

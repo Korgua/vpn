@@ -56,7 +56,7 @@ namespace VPN_Connection {
                     }
                 }
                 if (connectionTesting.Interval == 1) {
-                    connectionTesting.Interval = vpn.vpnData.stateInterval < 30000 ? 30000 : vpn.vpnData.stateInterval;
+                    connectionTesting.Interval = vpn.vpnData.stateInterval < 10000 ? 10000 : vpn.vpnData.stateInterval;
                 }
             };
             connectionTesting.Start();

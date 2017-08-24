@@ -9,7 +9,7 @@ namespace VPN_Connection {
         List<string> loggingExc = new List<string>();
         private string logPath = AppDomain.CurrentDomain.BaseDirectory + @"\\log"; //@".\\log\vpn_";
         private string actualFileName;
-        private bool logInConsole = true;
+        private bool logInConsole = false;
         public logging() {
             createLogFile();
         }
