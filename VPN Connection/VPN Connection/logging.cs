@@ -9,7 +9,8 @@ namespace VPN_Connection {
         List<string> loggingExc = new List<string>();
         private string logPath = AppDomain.CurrentDomain.BaseDirectory + @"\\log"; //@".\\log\vpn_";
         private string actualFileName;
-        private bool logInConsole = false;
+        private bool logInConsole = true;
+        private int logDepth = 3; //0: Only exceptions, 1: function fails, 2: function succes, 3: everything
         public logging() {
             createLogFile();
         }
@@ -68,12 +69,12 @@ namespace VPN_Connection {
             }
             return false;
         }
-        public void writeToLog(List<string> multiline, string line) {
+        public void writeToLog(List<string> multiline, string line, int depth = 0) {
             if (createLogFile()) {
                 try {
                     StreamWriter log = new StreamWriter(logPath+actualFileName, true);
                     DateTimeOffset logStart = new DateTimeOffset(DateTime.Now);
-                    if (multiline != null) {
+                    if (multiline != null && depth<=logDepth) {
                         bool isFirst = true;
                         foreach (string s in multiline) {
                             if (isFirst) {
@@ -91,14 +92,11 @@ namespace VPN_Connection {
                             }
                         }
                     }
-                    else if (line != null) {
+                    else if (line != null && depth <= logDepth) {
                         log.WriteLine(logStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t" + line));
                         if (logInConsole) {
                             Console.WriteLine(logStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t" + line));
                         }
-                    }
-                    else {
-                        log.WriteLine();
                     }
                     try {
                         log.Close();
