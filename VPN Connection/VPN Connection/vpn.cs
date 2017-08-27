@@ -65,7 +65,10 @@ namespace VPN_Connection {
         public void Dialer() {
             logging.writeToLog(null, String.Format("Dialer] Begin"),3);
             RasPhoneBook book;
-            if(testInternetConnection() && (book = createPhoneBook()) != null) {
+            if (resolveIP(vpnData.host) == null && getConnectionStatus() != null) {
+                disconnectPPTP();
+            }
+            if(testInternetConnection(false) && (book = createPhoneBook()) != null) {
                 string ip = resolveIP(vpnData.host).ToString();
                 RasDialer dialer = new RasDialer();
                 dialer.PhoneBookPath = book.Path;
@@ -136,6 +139,7 @@ namespace VPN_Connection {
                 }
             }
             logging.writeToLog(null, String.Format("[testInternetConnection] End"),3);
+            error = "";
             return true;
         }
     }

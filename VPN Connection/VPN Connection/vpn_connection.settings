@@ -21,7 +21,7 @@
       <Value Profile="(Default)">5</Value>
     </Setting>
     <Setting Name="max_attempt_to_reconnect" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">5</Value>
+      <Value Profile="(Default)">3</Value>
     </Setting>
     <Setting Name="checking_state_interval" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">5</Value>
@@ -33,7 +33,7 @@
       <Value Profile="(Default)">07:00:00</Value>
     </Setting>
     <Setting Name="vpn_test_ip" Type="System.String" Scope="User">
-      <Value Profile="(Default)">192.168.77.1</Value>
+      <Value Profile="(Default)">192.168.70.1</Value>
     </Setting>
   </Settings>
 </SettingsFile>

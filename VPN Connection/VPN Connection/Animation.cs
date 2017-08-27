@@ -30,7 +30,7 @@ namespace VPN_Connection {
         public animation(Form form,int width = 250, int height = 40, double opacity = 0.80, int interval = 5000) {
             formOriginalHeight = height;
             formOriginalWidth = width;
-            formMaxOpacity = opacity;
+            formMaxOpacity = opacity > 0.7 ? 0.7 : opacity;
             formInterval = interval;
             foreach(Control control in form.Controls) {
                 if(control.Name == "notificationText") {
@@ -44,6 +44,7 @@ namespace VPN_Connection {
                 }
                 Console.WriteLine(control.Name);
             }
+            form.Opacity = formMaxOpacity;
             formOriginal = form;
             formPictureBoxDimension = pBoxOriginal.Width + pBoxOriginal.Padding.All * 2;
         }
@@ -73,6 +74,12 @@ namespace VPN_Connection {
                     notificationFontColor = System.Drawing.Color.Firebrick;
                     notificationFormColor = System.Drawing.Color.DarkSalmon;
                     notificationText = "Csatlakozás sikertelen";
+                    break;
+                case 4:
+                    notificationIcon = VPN_Connection.Properties.Resources.error;
+                    notificationFontColor = System.Drawing.Color.Firebrick;
+                    notificationFormColor = System.Drawing.Color.DarkSalmon;
+                    notificationText = "A kapcsolat megszakadt";
                     break;
                 default:
                     notificationIcon = VPN_Connection.Properties.Resources.info;

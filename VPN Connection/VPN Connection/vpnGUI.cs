@@ -15,13 +15,13 @@ namespace VPN_Connection {
         private vpn vpn = new vpn();
         private logging logging = new logging();
         private animation Anim;
-        private int vpnPreviousState = 0; //0:not connected, 1: connecting, 2: connected, 3:failed
+        private int vpnPreviousState = 0; //0:not connected, 1: connecting, 2: connected, 3: vpn connection failed, 4: network error
         private int attempts = 0;
         public vpnGUI() {
             InitializeComponent();
-            Anim = new animation(this, this.Width, this.Height, vpn.vpnData.stateInterval);
-            this.Load += (sender, args) => Anim.activateNotification(this,1);
             this.Location = new Point(Screen.FromPoint(this.Location).WorkingArea.Right - this.Width, 0);
+            Anim = new animation(this, this.Width, this.Height,this.Opacity, vpn.vpnData.stateInterval);
+            this.Load += (sender, args) => Anim.activateNotification(this,1);
             logging.writeToLog(null, String.Format("[Program] Begin"),3);
             connectionTesting.Tick += establishConnection;
             connectionTesting.Interval = 1;
@@ -29,19 +29,31 @@ namespace VPN_Connection {
             //HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\NetworkList\Profiles
         }
 
-        private void establishConnection(object sender, EventArgs args) {
 
-            if(attempts == vpn.vpnData.maxAttempt) {
-                connectionTesting.Stop();
-                connectionTesting.Tick -= establishConnection;
+        private void testing(object sender, EventArgs args) {
+            if(vpn.getConnectionStatus() != null) {
+                if (!vpn.testInternetConnection(true)) {
+                    logging.writeToLog(null, String.Format("[testing][testInternetConnection] Error: {0} ",vpn.error), 1);
+                    Anim.activateNotification(this, 4, vpn.error);
+                    //vpn.disconnectPPTP();
+                    //attempts = 0;
+                }
+            }
+
+        }
+
+        private void establishConnection(object sender, EventArgs args) {
+            if(attempts == vpn.vpnData.maxAttempt && vpnPreviousState == 1) {
+                //connectionTesting.Stop();
+                //connectionTesting.Tick -= establishConnection;
                 vpnPreviousState = 3;
                 attempts = 0;
-                logging.writeToLog(null, String.Format("[Ticker] Reached max attempts({0})! Timer stopped", vpn.vpnData.maxAttempt),1);
+                connectionTesting.Interval = 60000;
+                logging.writeToLog(null, String.Format("[Ticker] Reached max attempts({0})! Increase timer to 5 min", vpn.vpnData.maxAttempt),1);
                 connectToVpn();
             }
-            else if(vpnPreviousState < 2) {
-                attempts++;
-                logging.writeToLog(null, String.Format("[Ticker] Attempts: {0}/{1}", attempts, vpn.vpnData.maxAttempt),3);
+            else if(vpnPreviousState < 2 || vpnPreviousState == 4) {
+                logging.writeToLog(null, String.Format("[Ticker] Attempts: {0}/{1}", attempts++, vpn.vpnData.maxAttempt),3);
                 connectToVpn();
             }
             else if(vpnPreviousState == 2) {
@@ -76,31 +88,53 @@ namespace VPN_Connection {
 
         public void connectToVpn() {
             logging.writeToLog(null, String.Format("[connectToVpn] Begin"),3);
-            if(vpn.getConnectionStatus() == null) {
-                logging.writeToLog(null, String.Format("[connectToVpn][ConnectionStatus] Not connected"),1);
-                if(vpnPreviousState == 3) {
-                    logging.writeToLog(null, String.Format("[connectToVpn] Failed to connect"),1);
+            if (vpn.getConnectionStatus() == null || !vpn.testInternetConnection(false)) {
+                logging.writeToLog(null, String.Format("[connectToVpn][ConnectionStatus] Not connected"), 1);
+                if (vpnPreviousState == 3) {
+                    logging.writeToLog(null, String.Format("[connectToVpn] Failed to connect"), 1);
                     Anim.activateNotification(this, 3, vpn.error);
                 }
                 else {
-                    if(vpnPreviousState != 1) {
+                    if (vpnPreviousState != 1) {
+
                         Anim.activateNotification(this, 1);
-                        logging.writeToLog(null, String.Format("[connectToVpn] Connecting"),3);
+                        logging.writeToLog(null, String.Format("[connectToVpn] Connecting"), 3);
                     }
                     vpnPreviousState = 1;
                     vpn.Dialer();
-                    if(vpn.getConnectionStatus() != null) {
-                        logging.writeToLog(null, String.Format("[ConnectionStatus] Connected"),2);
-                        Anim.activateNotification(this,  2);
+                    if (vpn.getConnectionStatus() != null && vpn.testInternetConnection(true)) {
+                        logging.writeToLog(null, String.Format("[ConnectionStatus] Connected"), 2);
+                        Anim.activateNotification(this, 2);
                         vpnPreviousState = 2;
+                        attempts = 0;
                     }
                 }
             }
-            else if(connectionStatus()) {
-                logging.writeToLog(null, String.Format("[ConnectionStatus] Already connected"),2);
-                vpnPreviousState = 2;
-                Anim.activateNotification(this,  2);
+            else  {
+                if (!vpn.testInternetConnection(true)) {
+                    if (vpnPreviousState == 2 || vpnPreviousState == 4) {
+                        if(vpnPreviousState == 2) { 
+                            attempts = 0;
+                            }
+                        vpnPreviousState = 1;
+                        Anim.activateNotification(this, vpnPreviousState); ;
+                        logging.writeToLog(null, String.Format("[connectToVpn] Connecting"), 3);
+                    }
+                    else {
+                        logging.writeToLog(null, String.Format("[testing][testInternetConnection] Error: {0} ", vpn.error), 1);
+                        vpnPreviousState = 4;
+                        Anim.activateNotification(this, vpnPreviousState, vpn.error);
+                        //vpn.disconnectPPTP();
+                    }
+                }
+                else {
+                    logging.writeToLog(null, String.Format("[ConnectionStatus] Connected"), 2);
+                    vpnPreviousState = 2;
+                    attempts = 0;
+                    Anim.activateNotification(this, 2);
+                }
             }
+            
         }
 
         private bool connectionStatus() {
@@ -117,6 +151,7 @@ namespace VPN_Connection {
 
 
         private void statusIconContextReconnect_Click(object sender, EventArgs e) {
+            Anim.activateNotification(this, 1);
             vpnPreviousState = 0;
             connectionTesting.Stop();
             connectionTesting.Tick -= establishConnection;
@@ -126,7 +161,7 @@ namespace VPN_Connection {
         }
 
         private void notificationStatusIcon_Click(object sender, EventArgs e) {
-            if(vpnPreviousState == 0 || vpnPreviousState == 3) {
+            if(vpnPreviousState == 0 || vpnPreviousState >= 3) {
                 statusIconContextReconnect.Enabled = true;
                 statusIconContextHangUp.Enabled = false;
             }
