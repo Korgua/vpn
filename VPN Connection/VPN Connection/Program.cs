@@ -11,9 +11,16 @@ namespace VPN_Connection {
         /// </summary>
         [STAThread]
         static void Main() {
+            bool result;
+            var mutex = new System.Threading.Mutex(true, "VH VPN", out result);
+            if(!result) {
+                MessageBox.Show("Csak az egypéldányos futás engedélyezett.", "Figyelmtetés", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new vpnGUI());
+            GC.KeepAlive(mutex);
         }
     }
 }

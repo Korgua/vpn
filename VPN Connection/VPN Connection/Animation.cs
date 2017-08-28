@@ -97,7 +97,12 @@ namespace VPN_Connection {
             data = null;
         }
 
-
+        /// <summary>
+        ///  Activating the notification
+        /// </summary>
+        /// <param name="form">Current/active form</param>
+        /// <param name="vpnStatus">Used by the applicable notification</param>
+        /// <param name="error">Showed by as extra information in notification</param>
         public void activateNotification(Form form, int vpnStatus=0, string error = "") {
             logging.writeToLog(null, String.Format("[activateNotification] Begin"), 3);
             form.Invoke(new MethodInvoker(delegate {
@@ -135,7 +140,6 @@ namespace VPN_Connection {
         public void Stretch(object sender, DoWorkEventArgs args) {
             try {
                 formOriginal.Invoke(new MethodInvoker(delegate {
-                int i = 0;
                     while(formOriginal.Width < formOriginalWidth) {
                         Thread.Sleep(10);
                         if(formOriginalWidth > formOriginal.Width) {
@@ -172,5 +176,6 @@ namespace VPN_Connection {
                 logging.writeToLog(null, String.Format("[BWShrink]Exception: {0}", ex.Message));
             }
         }
+
     }
 }

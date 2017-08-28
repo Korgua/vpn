@@ -1,5 +1,6 @@
 ﻿using DotRas;
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -64,36 +65,42 @@ namespace VPN_Connection {
 
         public void Dialer() {
             logging.writeToLog(null, String.Format("Dialer] Begin"),3);
+
             RasPhoneBook book;
-            if (resolveIP(vpnData.host) == null && getConnectionStatus() != null) {
-                disconnectPPTP();
-            }
-            if(testInternetConnection(false) && (book = createPhoneBook()) != null) {
-                string ip = resolveIP(vpnData.host).ToString();
+            if((book = createPhoneBook()) != null) {
+                try {
+                    string ip = resolveIP(vpnData.host).ToString();
                 RasDialer dialer = new RasDialer();
                 dialer.PhoneBookPath = book.Path;
                 dialer.Credentials = new NetworkCredential(vpnData.username, vpnData.password);
                 dialer.EntryName = vpnData.entryName;
-                try {
-                    //dialer.Dial();        
-                    dialer.DialAsync();            
-                    logging.writeToLog(null, String.Format("Dialer] Success"),2);
+                
+                    dialer.Dial();        
+                    //dialer.DialAsync();            
+                    logging.writeToLog(null, String.Format("[Dialer] Success"),2);
                 }
                 catch(Exception e) {
                     logging.writeToLog(null, String.Format("[Dialer][Exception] {0}", e.Message));
                 }
             }
             book = null;
-            logging.writeToLog(null, String.Format("Dialer] End"),3);
+            logging.writeToLog(null, String.Format("[Dialer] End"),3);
         }
 
         public void disconnectPPTP() {
-            RasConnection conn;
-            if((conn = getConnectionStatus()) != null) {
-                conn.HangUp(true);
-                logging.writeToLog(null, String.Format("[disconnectPPTP] Disconnect Success"),2);
-            }
-            conn = null;
+            BackgroundWorker BW = new BackgroundWorker();
+            BW.DoWork += (_sender, _args) => {
+                RasConnection conn;
+                if((conn = getConnectionStatus()) != null) {
+                    conn.HangUp(true);
+                    logging.writeToLog(null, String.Format("[disconnectPPTP] Disconnect Success"), 2);
+                }
+                conn = null;
+            };
+            BW.RunWorkerCompleted += (_sender, _args) => {
+                BW.Dispose();
+            };
+            BW.RunWorkerAsync();
         }
 
         public RasConnection getConnectionStatus() {
@@ -106,12 +113,12 @@ namespace VPN_Connection {
             return null;
         }
 
-        public IPAddress resolveIP(string host) { 
+        public IPAddress resolveIP(string host) {
             try {
                 using(Ping Ping = new Ping()) {
                     PingReply PingReply = Ping.Send(host);
                     if(PingReply.Status == IPStatus.Success) {
-                        logging.writeToLog(null, String.Format("[resolveIP] {0} found, IP address: {1}",host,PingReply.Address),2);
+                        logging.writeToLog(null, String.Format("[resolveIP] {0} found, IP address: {1}", host, PingReply.Address), 2);
                         return PingReply.Address;
                     }
                 }

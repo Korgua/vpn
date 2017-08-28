@@ -34,7 +34,7 @@ namespace VPN_Connection {
             }
             FileStream fs = null;
             DateTimeOffset logDateStart = new DateTimeOffset(DateTime.Now);
-            actualFileName = "\\vpn_" + logDateStart.ToString("yyyy.MM.dd_HH") + ".txt";
+            actualFileName = "\\vpn_" + logDateStart.ToString("yyyy.MM.dd_HH") + "_"+ Environment.UserName + ".txt";
             try {
                 if(!File.Exists(logPath + actualFileName)) {
                     try {
