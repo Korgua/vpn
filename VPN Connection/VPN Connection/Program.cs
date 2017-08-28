@@ -14,7 +14,7 @@ namespace VPN_Connection {
             bool result;
             var mutex = new System.Threading.Mutex(true, "VH VPN", out result);
             if(!result) {
-                MessageBox.Show("Csak az egypéldányos futás engedélyezett.", "Figyelmtetés", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("Csak az egypéldányos futás engedélyezett.", "Figyelmeztetés", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
             Application.EnableVisualStyles();

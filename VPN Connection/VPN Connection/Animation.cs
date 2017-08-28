@@ -14,8 +14,9 @@ namespace VPN_Connection {
         public Image notificationIcon { get; set; }
         public string notificationText { get; set; }
         public string notificationTextExtend { get; set; }
+        public bool shrinkEnded = false;
+        public bool stretchEnded = false;
 
-        private System.Windows.Forms.Timer AnimationTimer = new System.Windows.Forms.Timer();
         private BackgroundWorker BW;
         private Form formOriginal;
         private PictureBox pBoxOriginal;
@@ -25,12 +26,12 @@ namespace VPN_Connection {
         public int formOriginalWidth = 250;
         public int formOriginalHeight = 40;
         private int formPictureBoxDimension = 32;
-        private int formInterval = 10;
+        private int formInterval = 5000;
 
         public animation(Form form,int width = 250, int height = 40, double opacity = 0.80, int interval = 5000) {
             formOriginalHeight = height;
             formOriginalWidth = width;
-            formMaxOpacity = opacity > 0.7 ? 0.7 : opacity;
+            formMaxOpacity = opacity >= 0.8 ? 0.8 : opacity;
             formInterval = interval;
             foreach(Control control in form.Controls) {
                 if(control.Name == "notificationText") {
@@ -42,7 +43,6 @@ namespace VPN_Connection {
                 else if(control.Name == "notificationStatusIcon") {
                     pBoxOriginal = (PictureBox)control;
                 }
-                Console.WriteLine(control.Name);
             }
             form.Opacity = formMaxOpacity;
             formOriginal = form;
@@ -103,17 +103,11 @@ namespace VPN_Connection {
         /// <param name="form">Current/active form</param>
         /// <param name="vpnStatus">Used by the applicable notification</param>
         /// <param name="error">Showed by as extra information in notification</param>
-        public void activateNotification(Form form, int vpnStatus=0, string error = "") {
+        public void activateNotification(Form form, int vpnStatus = 0, string error = "") {
             logging.writeToLog(null, String.Format("[activateNotification] Begin"), 3);
-            form.Invoke(new MethodInvoker(delegate {
-                formOriginal.Width = formOriginalWidth;
-                formOriginal.Height = formOriginalHeight;
-                AnimationTimer.Stop();
-                AnimationTimer.Dispose();
-                AnimationTimer.Interval = formInterval;
-
+            //formOriginal.Width = formOriginalWidth;
+            //formOriginal.Height = formOriginalHeight;
                 changeNotification(vpnStatus);
-
                 formOriginal.BackColor = notificationFormColor;
                 formOriginalNotification.ForeColor = notificationFontColor;
                 formOriginalNotification.BackColor = notificationFormColor;
@@ -123,14 +117,24 @@ namespace VPN_Connection {
                 formOriginalNotificationExtend.Text = error;
                 pBoxOriginal.Image = notificationIcon;
                 form = formOriginal;
-            }));
+
+
             BW = new BackgroundWorker();
             BW.WorkerSupportsCancellation = true;
             BW.WorkerReportsProgress = true;
-            BW.DoWork += (sender, args) => Shrink(form);
+            BW.DoWork += Stretch;
             BW.RunWorkerCompleted += (_sender, args) => {
-                BW.DoWork -= (sender_, args_) => Shrink(form);
-                BW.CancelAsync();
+                BW.DoWork -= Stretch;
+                BW.Dispose();
+            };
+            BW.RunWorkerAsync();
+
+            BW = new BackgroundWorker();
+            BW.WorkerSupportsCancellation = true;
+            BW.WorkerReportsProgress = true;
+            BW.DoWork += Shrink;
+            BW.RunWorkerCompleted += (_sender, args) => {
+                BW.DoWork -= Shrink;
                 BW.Dispose();
             };
             BW.RunWorkerAsync();
@@ -155,24 +159,24 @@ namespace VPN_Connection {
             }
         }
 
-        private void Shrink(Form form) {
-            Thread.Sleep(3000);
+        public void Shrink(object sender, DoWorkEventArgs args) {
+            Thread.Sleep(formInterval);
             try {
-                form.Invoke(new MethodInvoker(delegate {
-                    while(formOriginal.Height > 40 || formOriginal.Width > 40) {
+                formOriginal.Invoke(new MethodInvoker(delegate {
+                    while(formOriginal.Height > formPictureBoxDimension || formOriginal.Width > formPictureBoxDimension) {
                         Thread.Sleep(10);
-                        if(formOriginal.Height > 40) {
+                        if(formOriginal.Height > formPictureBoxDimension) {
                             formOriginal.Height -= 10;
                         }
-                        if(formOriginal.Width > 40) {
+                        if(formOriginal.Width > formPictureBoxDimension) {
                             formOriginal.Width -= 10;
                         }
                     }
-                    form.Height = 40;
-                    form.Width = 40;
+                    formOriginal.Height = formPictureBoxDimension;
+                    formOriginal.Width = formPictureBoxDimension;
                 }));
             }
-            catch(Exception ex) {
+            catch (Exception ex) {
                 logging.writeToLog(null, String.Format("[BWShrink]Exception: {0}", ex.Message));
             }
         }

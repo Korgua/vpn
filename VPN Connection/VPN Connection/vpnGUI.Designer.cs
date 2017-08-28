@@ -82,6 +82,8 @@ namespace VPN_Connection {
             this.notificationStatusIcon.TabStop = false;
             this.notificationStatusIcon.Click += new System.EventHandler(this.notificationStatusIcon_Click);
             this.notificationStatusIcon.MouseDown += new System.Windows.Forms.MouseEventHandler(this.StatusIconDragStart);
+            this.notificationStatusIcon.MouseLeave += new System.EventHandler(this.statusIconContext_Leave);
+            this.notificationStatusIcon.MouseHover += new System.EventHandler(this.statusIconContext_Hover);
             this.notificationStatusIcon.MouseMove += new System.Windows.Forms.MouseEventHandler(this.FormDrag);
             this.notificationStatusIcon.MouseUp += new System.Windows.Forms.MouseEventHandler(this.FormDragEnd);
             // 

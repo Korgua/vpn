@@ -15,15 +15,6 @@ namespace VPN_Connection {
             createLogFile();
         }
 
-        /*public void deleteLog() {
-            try {
-                File.Delete(logPath);
-            }
-            catch(Exception e) {
-                loggingExc.Add(e.Message);
-            }
-        }*/
-
         public bool createLogFile() {
             
             try {
