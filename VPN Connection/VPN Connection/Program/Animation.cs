@@ -105,8 +105,6 @@ namespace VPN_Connection {
         /// <param name="error">Showed by as extra information in notification</param>
         public void activateNotification(Form form, int vpnStatus = 0, string error = "") {
             logging.writeToLog(null, String.Format("[activateNotification] Begin"), 3);
-            //formOriginal.Width = formOriginalWidth;
-            //formOriginal.Height = formOriginalHeight;
                 changeNotification(vpnStatus);
                 formOriginal.BackColor = notificationFormColor;
                 formOriginalNotification.ForeColor = notificationFontColor;
@@ -136,6 +134,9 @@ namespace VPN_Connection {
             BW.RunWorkerCompleted += (_sender, args) => {
                 BW.DoWork -= Shrink;
                 BW.Dispose();
+                if(vpnStatus>=3) {
+                    activateNotification(form, 1);
+                }
             };
             BW.RunWorkerAsync();
             logging.writeToLog(null, String.Format("[activateNotification] End"), 3);
@@ -143,6 +144,8 @@ namespace VPN_Connection {
 
         public void Stretch(object sender, DoWorkEventArgs args) {
             try {
+                //A GUI és a logika külön szálon fut, emiatt a BackgroundWorker
+                //exception-ra futna
                 formOriginal.Invoke(new MethodInvoker(delegate {
                     while(formOriginal.Width < formOriginalWidth) {
                         Thread.Sleep(10);

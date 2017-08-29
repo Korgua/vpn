@@ -11,8 +11,10 @@ namespace VPN_Connection {
     public class vpn {
         public vpnData vpnData = new vpnData();
         private logging logging = new logging();
+        private RasConnectionStatus Rsc;
         private string path = AppDomain.CurrentDomain.BaseDirectory + @".\\vpn.pbk";
         public string error { get; set; }
+        public bool vpn_connected = false;
 
         private RasPhoneBook createPhoneBook() {
             string ip;
@@ -84,8 +86,9 @@ namespace VPN_Connection {
                     dialer.Error += (sender, args) => {
                         logging.writeToLog(null, String.Format("[Dialer] DialError"), 2);
                     };
-                    //dialer.DialAsync();
-                    dialer.Dial();
+                    dialer.DialAsync();
+                    //dialer.Dial();
+                    vpn_connected = true;
                     logging.writeToLog(null, String.Format("[Dialer] Success"), 2);
                 }
                 catch (Exception e) {
@@ -98,16 +101,16 @@ namespace VPN_Connection {
 
         public void disconnectPPTP() {
             BackgroundWorker BW = new BackgroundWorker();
-            BW.DoWork += (_sender, _args) => {
+            BW.DoWork += (sender, args) => {
                 RasConnection conn;
                 if((conn = getConnectionStatus()) != null) {
                     conn.HangUp(true);
                     logging.writeToLog(null, String.Format("[disconnectPPTP] Disconnect Success"), 1);
+                    conn = null;
                 }
-                conn = null;
             };
-            BW.RunWorkerCompleted += (_sender, _args) => {
-                BW.Dispose();
+            BW.RunWorkerCompleted += (sender, args) => {
+                vpn_connected = false;
             };
             BW.RunWorkerAsync();
         }
@@ -133,7 +136,7 @@ namespace VPN_Connection {
                         }
                     }
                     catch(Exception e) {
-                        logging.writeToLog(null, String.Format("[resolveIP][Exception] Ping {1} thrown an exception: ", host, e.Message));
+                        logging.writeToLog(null, String.Format("[resolveIP][Exception] Ping {0} thrown an exception: {1}", host, e.Message));
                     }
                 }
             }

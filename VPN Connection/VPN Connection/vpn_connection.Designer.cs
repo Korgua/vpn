@@ -73,18 +73,6 @@ namespace VPN_Connection {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool notification {
-            get {
-                return ((bool)(this["notification"]));
-            }
-            set {
-                this["notification"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("5")]
         public int notification_length {
             get {
@@ -97,7 +85,7 @@ namespace VPN_Connection {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("3")]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
         public int max_attempt_to_reconnect {
             get {
                 return ((int)(this["max_attempt_to_reconnect"]));
@@ -109,7 +97,7 @@ namespace VPN_Connection {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("15")]
+        [global::System.Configuration.DefaultSettingValueAttribute("30")]
         public int checking_state_interval {
             get {
                 return ((int)(this["checking_state_interval"]));
@@ -121,7 +109,7 @@ namespace VPN_Connection {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("00:00:00")]
+        [global::System.Configuration.DefaultSettingValueAttribute("22:00:00")]
         public global::System.TimeSpan silent_mode_start {
             get {
                 return ((global::System.TimeSpan)(this["silent_mode_start"]));

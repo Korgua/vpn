@@ -30,6 +30,17 @@ namespace VPN_Connection {
 
 
         private void establishConnection(object sender, EventArgs args) {
+            TimeSpan currentTime = DateTime.Now.TimeOfDay;
+            if(currentTime < vpn.vpnData.silentmode_end || currentTime > vpn.vpnData.silentmode_start) {
+                logging.writeToLog(null, String.Format("Silent mode activated"), 3);
+                this.Visible = false;
+            }
+            else {
+                if(!this.Visible) {
+                    logging.writeToLog(null, String.Format("Silent mode deactivated"), 3);
+                    this.Visible = true;
+                }
+            }
             logging.writeToLog(null, String.Format("[establishConnection] Begin"), 3);
             if (vpn.getConnectionStatus() == null) {
                 if (attempts <= vpn.vpnData.maxAttempt) {
@@ -143,10 +154,17 @@ namespace VPN_Connection {
         }
 
         private void statusIconContextExit_Click(object sender, EventArgs e) {
+            System.Windows.Forms.Timer waitBeforeExit = new System.Windows.Forms.Timer();
+            waitBeforeExit.Interval = 100;
+            waitBeforeExit.Tick += (_sender, _args) => {
+                if(!vpn.vpn_connected) {
+                    logging.writeToLog(null, String.Format("[Program] End"), 1);
+                    Application.Exit();
+                }
+            };
+            waitBeforeExit.Start();
             vpn.disconnectPPTP();
             connectionTesting.Stop();
-            logging.writeToLog(null, String.Format("[Program] End"), 1);
-            this.Close();
         }
 
         private void statusIconContext_Hover(object sender, EventArgs e) {

@@ -51,7 +51,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>vpn.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\vpn.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DotRas, Version=1.3.5166.33435, Culture=neutral, PublicKeyToken=b378f04384b7892a, processorArchitecture=MSIL">
@@ -72,25 +72,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Animation.cs" />
-    <Compile Include="logging.cs" />
+    <Compile Include="Program\Animation.cs" />
+    <Compile Include="Program\logging.cs" />
     <Compile Include="vpn_connection.cs" />
     <Compile Include="vpn_connection.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>vpn_connection.settings</DependentUpon>
     </Compile>
-    <Compile Include="vpnData.cs" />
-    <Compile Include="vpn.cs" />
-    <Compile Include="vpnGUI.cs">
+    <Compile Include="Program\vpnData.cs" />
+    <Compile Include="Program\vpn.cs" />
+    <Compile Include="Program\vpnGUI.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="vpnGUI.Designer.cs">
+    <Compile Include="Program\vpnGUI.Designer.cs">
       <DependentUpon>vpnGUI.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="vpnGUI.resx">
+    <EmbeddedResource Include="Program\vpnGUI.resx">
       <DependentUpon>vpnGUI.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -118,7 +118,7 @@
     <None Include="Resources\info.png" />
     <None Include="Resources\tick.png" />
     <None Include="Resources\error.png" />
-    <Content Include="vpn.ico" />
+    <Content Include="Resources\vpn.ico" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">
@@ -137,9 +137,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Program\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

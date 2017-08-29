@@ -29,3 +29,4 @@ c:\git\visual_studio\vpn_connection\VPN Connection\VPN Connection\obj\Debug\VPN_
 c:\git\visual_studio\vpn_connection\VPN Connection\VPN Connection\obj\Debug\VPN Connection.csproj.GenerateResource.Cache
 c:\git\visual_studio\vpn_connection\VPN Connection\VPN Connection\obj\Debug\VPN Connection.exe
 c:\git\visual_studio\vpn_connection\VPN Connection\VPN Connection\obj\Debug\VPN Connection.pdb
+c:\git\visual_studio\vpn_connection\VPN Connection\VPN Connection\obj\Debug\VPN Connection.csprojResolveAssemblyReference.cache
