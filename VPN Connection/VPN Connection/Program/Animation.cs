@@ -49,7 +49,7 @@ namespace VPN_Connection {
             formPictureBoxDimension = pBoxOriginal.Width + pBoxOriginal.Padding.All * 2;
         }
 
-        public void changeNotification(int type = 1) {
+        public void changeNotification(int type) {
             switch(type) {
                 case 0:
                     notificationIcon = VPN_Connection.Properties.Resources.error;
@@ -81,14 +81,15 @@ namespace VPN_Connection {
                     notificationFormColor = System.Drawing.Color.DarkSalmon;
                     notificationText = "A kapcsolat megszakadt";
                     break;
-                default:
+                /*default:
                     notificationIcon = VPN_Connection.Properties.Resources.info;
                     notificationFontColor = System.Drawing.Color.CornflowerBlue;
                     notificationFormColor = System.Drawing.Color.PowderBlue;
                     notificationText = "Csatlakozás folyamatban...";
-                    break;
+                    break;*/
             }
             List<String> data = new List<string>();
+            data.Add(String.Format("vpnStatus: {0}", type));
             data.Add(String.Format("notificationIcon: {0}", notificationIcon));
             data.Add(String.Format("notificationFontColor: {0}", notificationFontColor));
             data.Add(String.Format("notificationFormColor: {0}", notificationFormColor));
@@ -103,9 +104,10 @@ namespace VPN_Connection {
         /// <param name="form">Current/active form</param>
         /// <param name="vpnStatus">Used by the applicable notification</param>
         /// <param name="error">Showed by as extra information in notification</param>
-        public void activateNotification(Form form, int vpnStatus = 0, string error = "") {
+        public void activateNotification(Form form, int vpnStatus, string error = "") {
             logging.writeToLog(null, String.Format("[activateNotification] Begin"), 3);
-                changeNotification(vpnStatus);
+            logging.writeToLog(null, String.Format("[activateNotification] vpnStatus: {0}",vpnStatus), 3);
+            changeNotification(vpnStatus);
                 formOriginal.BackColor = notificationFormColor;
                 formOriginalNotification.ForeColor = notificationFontColor;
                 formOriginalNotification.BackColor = notificationFormColor;
@@ -144,8 +146,6 @@ namespace VPN_Connection {
 
         public void Stretch(object sender, DoWorkEventArgs args) {
             try {
-                //A GUI és a logika külön szálon fut, emiatt a BackgroundWorker
-                //exception-ra futna
                 formOriginal.Invoke(new MethodInvoker(delegate {
                     while(formOriginal.Width < formOriginalWidth) {
                         Thread.Sleep(10);

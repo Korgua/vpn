@@ -161,7 +161,6 @@ namespace VPN_Connection {
             logging.writeToLog(null, String.Format("[testInternetConnection] Begin"),3);
             if(resolveIP("google-public-dns-a.google.com")==null) {
                 error = "Nincs internetkapcsolat";
-                logging.writeToLog(null, String.Format("[testInternetConnection][Error] {0} ", error));
                 return false;
             }
             if(resolveIP(vpnData.host) == null) {
