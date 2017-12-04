@@ -18,7 +18,7 @@ namespace VPN_Connection {
 
         private RasPhoneBook createPhoneBook() {
             string ip;
-            if ((ip = resolveIP(vpnData.host).ToString()) == null){
+            if ((ip = resolveIP(vpnData.host)) == null){
                 logging.writeToLog(null, String.Format("[createPhoneBook] {0} not found",vpnData.host));
                 return null;
             }
@@ -75,7 +75,7 @@ namespace VPN_Connection {
             RasPhoneBook book;
             if((book = createPhoneBook()) != null) {
                 try {
-                    string ip = resolveIP(vpnData.host).ToString();
+                    string ip = resolveIP(vpnData.host);
                     RasDialer dialer = new RasDialer();
                     dialer.PhoneBookPath = book.Path;
                     dialer.Credentials = new NetworkCredential(vpnData.username, vpnData.password);
@@ -125,31 +125,43 @@ namespace VPN_Connection {
             return null;
         }
 
-        public IPAddress resolveIP(string host) {
+        public string resolveIP(string host) {
             try {
-                using(Ping Ping = new Ping()) {
-                    try {
-                        PingReply PingReply = Ping.Send(host);
-                        if (PingReply.Status == IPStatus.Success) {
-                            logging.writeToLog(null, String.Format("[resolveIP] {0} found, IP address: {1}", host, PingReply.Address), 2);
-                            return PingReply.Address;
-                        }
-                    }
-                    catch(Exception e) {
-                        logging.writeToLog(null, String.Format("[resolveIP][Exception] Ping {0} thrown an exception: {1}", host, e.Message));
-                    }
-                }
+                String ip = Dns.GetHostEntry(host).AddressList[0].ToString();
+                logging.writeToLog(null, String.Format("[resolveIP] {0} found, IP address: {1}", host, ip), 2);
+                return ip;
             }
             catch(Exception e) {
-                logging.writeToLog(null, String.Format("[resolveIP][Exception] {0} is unreachable: {1}", host, e.Message));
+                try {
+                    using(Ping Ping = new Ping()) {
+                        try {
+                            PingReply PingReply = Ping.Send(host);
+                            if(PingReply.Status == IPStatus.Success) {
+                                logging.writeToLog(null, String.Format("[resolveIP] {0} found, IP address: {1}", host, PingReply.Address), 2);
+                                return PingReply.Address.ToString();
+                            }
+                        }
+                        catch(Exception e_) {
+                            logging.writeToLog(null, String.Format("[resolveIP][Exception] Ping {0} thrown an exception: {1}", host, e_.Message));
+                        }
+                    }
+                }
+                catch(Exception e__) {
+                    logging.writeToLog(null, String.Format("[resolveIP][Exception] {0} is unreachable with PING: {1}", host, e__.Message));
+                }
+                logging.writeToLog(null, String.Format("[resolveIP][Exception] {0} is unreachable with SOCKET: {1}", host, e.Message));
             }
             return null;
+/*
+            
+            return null;*/
         }
 
         public bool testInternetConnection(bool checkInnerNetwork = false) {
             logging.writeToLog(null, String.Format("[testInternetConnection] Begin"),3);
             if(resolveIP("google-public-dns-a.google.com")==null) {
                 error = "Nincs internetkapcsolat";
+                logging.writeToLog(null, String.Format("[testInternetConnection][Error] {0} ", error));
                 return false;
             }
             if(resolveIP(vpnData.host) == null) {

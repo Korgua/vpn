@@ -133,7 +133,7 @@ namespace VPN_Connection {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("192.168.70.8")]
+        [global::System.Configuration.DefaultSettingValueAttribute("192.168.80.8")]
         public string vpn_test_ip {
             get {
                 return ((string)(this["vpn_test_ip"]));

@@ -44,6 +44,7 @@ namespace VPN_Connection {
             logging.writeToLog(null, String.Format("[establishConnection] Begin"), 3);
             if (vpn.getConnectionStatus() == null) {
                 if (attempts <= vpn.vpnData.maxAttempt) {
+                    logging.writeToLog(null, String.Format("[establishConnection]vpn.testInternetConnection(false): {0}", vpn.testInternetConnection(false).ToString()));
                     if (vpn.testInternetConnection(false)) {
                         if (vpnPreviousState != 1) {
                             Anim.activateNotification(this, vpnPreviousState);
@@ -177,7 +178,14 @@ namespace VPN_Connection {
             BW.RunWorkerAsync();
         }
         private void statusIconContext_Leave(object sender, EventArgs e) {
-            Anim.activateNotification(this, vpnPreviousState, vpn.error);
+            //Anim.activateNotification(this, vpnPreviousState, vpn.error);
+            BackgroundWorker BW = new BackgroundWorker();
+            BW.DoWork += Anim.Shrink;
+            BW.RunWorkerCompleted += (_sender, _args) => {
+                BW.DoWork -= Anim.Shrink;
+                BW.Dispose();
+            };
+            BW.RunWorkerAsync();
         }
     }
 }

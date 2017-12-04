@@ -30,7 +30,7 @@
       <Value Profile="(Default)">07:00:00</Value>
     </Setting>
     <Setting Name="vpn_test_ip" Type="System.String" Scope="User">
-      <Value Profile="(Default)">192.168.70.8</Value>
+      <Value Profile="(Default)">192.168.80.8</Value>
     </Setting>
   </Settings>
 </SettingsFile>
