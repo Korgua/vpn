@@ -23,14 +23,14 @@
     <Setting Name="checking_state_interval" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">30</Value>
     </Setting>
-    <Setting Name="silent_mode_start" Type="System.TimeSpan" Scope="User">
-      <Value Profile="(Default)">22:00:00</Value>
-    </Setting>
     <Setting Name="silent_mode_end" Type="System.TimeSpan" Scope="User">
-      <Value Profile="(Default)">07:00:00</Value>
+      <Value Profile="(Default)">06:00:00</Value>
     </Setting>
     <Setting Name="vpn_test_ip" Type="System.String" Scope="User">
       <Value Profile="(Default)">192.168.80.8</Value>
+    </Setting>
+    <Setting Name="silent_mode_start" Type="System.TimeSpan" Scope="User">
+      <Value Profile="(Default)">22:00:00</Value>
     </Setting>
   </Settings>
 </SettingsFile>

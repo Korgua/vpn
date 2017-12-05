@@ -73,7 +73,7 @@ namespace VPN_Connection {
             logging.writeToLog(null, String.Format("[Dialer] Begin"),3);
 
             RasPhoneBook book;
-            if((book = createPhoneBook()) != null) {
+            if((book = createPhoneBook()) != null ) {
                 try {
                     string ip = resolveIP(vpnData.host);
                     RasDialer dialer = new RasDialer();
@@ -86,8 +86,11 @@ namespace VPN_Connection {
                     dialer.Error += (sender, args) => {
                         logging.writeToLog(null, String.Format("[Dialer] DialError"), 2);
                     };
-                    dialer.DialAsync();
-                    //dialer.Dial();
+                    dialer.StateChanged += (sender, args) => {
+                        logging.writeToLog(null, String.Format("[Dialer] dialer.StateChanged: {0}", args.State), 1);
+                    };
+                    //dialer.DialAsync();
+                    dialer.Dial();
                     vpn_connected = true;
                     logging.writeToLog(null, String.Format("[Dialer] Success"), 2);
                 }
@@ -97,6 +100,10 @@ namespace VPN_Connection {
             }
             book = null;
             logging.writeToLog(null, String.Format("[Dialer] End"),3);
+        }
+
+        private void Dialer_StateChanged(object sender, StateChangedEventArgs e) {
+            throw new NotImplementedException();
         }
 
         public void disconnectPPTP() {

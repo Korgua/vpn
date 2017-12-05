@@ -109,19 +109,7 @@ namespace VPN_Connection {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("22:00:00")]
-        public global::System.TimeSpan silent_mode_start {
-            get {
-                return ((global::System.TimeSpan)(this["silent_mode_start"]));
-            }
-            set {
-                this["silent_mode_start"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("07:00:00")]
+        [global::System.Configuration.DefaultSettingValueAttribute("06:00:00")]
         public global::System.TimeSpan silent_mode_end {
             get {
                 return ((global::System.TimeSpan)(this["silent_mode_end"]));
@@ -140,6 +128,18 @@ namespace VPN_Connection {
             }
             set {
                 this["vpn_test_ip"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("22:00:00")]
+        public global::System.TimeSpan silent_mode_start {
+            get {
+                return ((global::System.TimeSpan)(this["silent_mode_start"]));
+            }
+            set {
+                this["silent_mode_start"] = value;
             }
         }
     }

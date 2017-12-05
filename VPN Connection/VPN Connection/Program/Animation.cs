@@ -89,7 +89,6 @@ namespace VPN_Connection {
                     break;*/
             }
             List<String> data = new List<string>();
-            data.Add(String.Format("vpnStatus: {0}", type));
             data.Add(String.Format("notificationIcon: {0}", notificationIcon));
             data.Add(String.Format("notificationFontColor: {0}", notificationFontColor));
             data.Add(String.Format("notificationFormColor: {0}", notificationFormColor));
@@ -115,6 +114,7 @@ namespace VPN_Connection {
                 formOriginalNotificationExtend.ForeColor = notificationFontColor;
                 formOriginalNotificationExtend.BackColor = notificationFormColor;
                 formOriginalNotificationExtend.Text = error;
+                formOriginal.TopMost = true;
                 pBoxOriginal.Image = notificationIcon;
                 form = formOriginal;
 

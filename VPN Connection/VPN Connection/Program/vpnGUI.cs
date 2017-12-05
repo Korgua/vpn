@@ -19,18 +19,19 @@ namespace VPN_Connection {
         private int attempts = 0;
         public vpnGUI() {
             InitializeComponent();
+            vpn.disconnectPPTP();
             this.Location = new Point(Screen.FromPoint(this.Location).WorkingArea.Right - this.Width, 0);
             Anim = new animation(this, this.Width, this.Height, this.Opacity, vpn.vpnData.notificationLength);
-            //this.Load += (sender, args) => Anim.activateNotification(this, 1);
+            this.Load += (sender, args) => Anim.activateNotification(this, 1);
             logging.writeToLog(null, String.Format("[Program] Begin"), 1);
             connectionTesting.Tick += establishConnection;
-            connectionTesting.Interval = 5000;
+            connectionTesting.Interval = 1000;
             connectionTesting.Start();
         }
 
 
         private void establishConnection(object sender, EventArgs args) {
-            /*TimeSpan currentTime = DateTime.Now.TimeOfDay;
+            TimeSpan currentTime = DateTime.Now.TimeOfDay;
             if(currentTime < vpn.vpnData.silentmode_end || currentTime > vpn.vpnData.silentmode_start) {
                 logging.writeToLog(null, String.Format("Silent mode activated"), 3);
                 this.Visible = false;
@@ -40,11 +41,10 @@ namespace VPN_Connection {
                     logging.writeToLog(null, String.Format("Silent mode deactivated"), 3);
                     this.Visible = true;
                 }
-            }*/
+            }
             logging.writeToLog(null, String.Format("[establishConnection] Begin"), 3);
             if (vpn.getConnectionStatus() == null) {
                 if (attempts <= vpn.vpnData.maxAttempt) {
-                    logging.writeToLog(null, String.Format("[establishConnection] vpn.testInternetConnection(false): {0}", vpn.testInternetConnection(false)), 1);
                     if (vpn.testInternetConnection(false)) {
                         if (vpnPreviousState != 1) {
                             Anim.activateNotification(this, vpnPreviousState);
@@ -67,9 +67,8 @@ namespace VPN_Connection {
                     logging.writeToLog(null, String.Format("[establishConnection] Error: {0}", vpn.error), 1);
                     logging.writeToLog(null, String.Format("[establishConnection] Max attempt achieved without vpn connection! Increasing timeout to: {0}", connectionTesting.Interval), 1);
                 }
-                logging.writeToLog(null, String.Format("[establishConnection] vpnPreviousState: {0}", vpnPreviousState), 1);
             }
-            /*else {
+            else {
                 if (!vpn.testInternetConnection(true)) {
                     logging.writeToLog(null, String.Format("[!vpn.testInternetConnection(true)]"), 1);
                     if (attempts == vpn.vpnData.maxAttempt) {
@@ -99,7 +98,7 @@ namespace VPN_Connection {
                         logging.writeToLog(null, String.Format("[establishConnection] Set timeout back to {0}", vpn.vpnData.stateInterval), 3);
                     }
                 }
-            }*/
+            }
             logging.writeToLog(null, String.Format("[establishConnection] Attempts: {0}/{1}, current interval: {2}", attempts++, vpn.vpnData.maxAttempt,connectionTesting.Interval),3);
         }
 
