@@ -31,7 +31,7 @@ namespace VPN_Connection {
         public animation(Form form,int width = 250, int height = 40, double opacity = 0.80, int interval = 5000) {
             formOriginalHeight = height;
             formOriginalWidth = width;
-            formMaxOpacity = opacity >= 0.8 ? 0.8 : opacity;
+            formMaxOpacity = opacity >= 0.5 ? 0.5 : opacity;
             formInterval = interval;
             foreach(Control control in form.Controls) {
                 if(control.Name == "notificationText") {
@@ -61,7 +61,7 @@ namespace VPN_Connection {
                     notificationIcon = VPN_Connection.Properties.Resources.info;
                     notificationFontColor = System.Drawing.Color.CornflowerBlue;
                     notificationFormColor = System.Drawing.Color.PowderBlue;
-                    notificationText = "Csatlakozás folyamatban...";
+                    notificationText = "Csatlakozás...";
                     break;
                 case 2:
                     notificationIcon = VPN_Connection.Properties.Resources.tick;
@@ -81,14 +81,15 @@ namespace VPN_Connection {
                     notificationFormColor = System.Drawing.Color.DarkSalmon;
                     notificationText = "A kapcsolat megszakadt";
                     break;
-                /*default:
+                default:
                     notificationIcon = VPN_Connection.Properties.Resources.info;
                     notificationFontColor = System.Drawing.Color.CornflowerBlue;
                     notificationFormColor = System.Drawing.Color.PowderBlue;
                     notificationText = "Csatlakozás folyamatban...";
-                    break;*/
+                    break;
             }
             List<String> data = new List<string>();
+            data.Add(String.Format("notificationType: {0}", type));
             data.Add(String.Format("notificationIcon: {0}", notificationIcon));
             data.Add(String.Format("notificationFontColor: {0}", notificationFontColor));
             data.Add(String.Format("notificationFormColor: {0}", notificationFormColor));
@@ -105,7 +106,6 @@ namespace VPN_Connection {
         /// <param name="error">Showed by as extra information in notification</param>
         public void activateNotification(Form form, int vpnStatus, string error = "") {
             logging.writeToLog(null, String.Format("[activateNotification] Begin"), 3);
-            logging.writeToLog(null, String.Format("[activateNotification] vpnStatus: {0}",vpnStatus), 3);
             changeNotification(vpnStatus);
                 formOriginal.BackColor = notificationFormColor;
                 formOriginalNotification.ForeColor = notificationFontColor;
@@ -119,7 +119,7 @@ namespace VPN_Connection {
                 form = formOriginal;
 
 
-            BW = new BackgroundWorker();
+            /*BW = new BackgroundWorker();
             BW.WorkerSupportsCancellation = true;
             BW.WorkerReportsProgress = true;
             BW.DoWork += Stretch;
@@ -140,7 +140,7 @@ namespace VPN_Connection {
                     activateNotification(form, 1);
                 }
             };
-            BW.RunWorkerAsync();
+            BW.RunWorkerAsync();*/
             logging.writeToLog(null, String.Format("[activateNotification] End"), 3);
         }
 

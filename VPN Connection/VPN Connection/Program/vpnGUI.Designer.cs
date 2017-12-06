@@ -53,13 +53,13 @@ namespace VPN_Connection {
             // 
             this.notificationText.AutoSize = true;
             this.notificationText.BackColor = System.Drawing.Color.Transparent;
-            this.notificationText.Font = new System.Drawing.Font("Microsoft PhagsPa", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.notificationText.Font = new System.Drawing.Font("Segoe UI Symbol", 9F, System.Drawing.FontStyle.Bold);
             this.notificationText.ForeColor = System.Drawing.Color.CornflowerBlue;
-            this.notificationText.Location = new System.Drawing.Point(38, 1);
+            this.notificationText.Location = new System.Drawing.Point(38, 5);
             this.notificationText.Name = "notificationText";
-            this.notificationText.Size = new System.Drawing.Size(213, 21);
+            this.notificationText.Size = new System.Drawing.Size(157, 15);
             this.notificationText.TabIndex = 6;
-            this.notificationText.Text = "Csatlakozás folyamatban...";
+            this.notificationText.Text = "Sikeresen lekapcsolódva";
             this.notificationText.MouseDown += new System.Windows.Forms.MouseEventHandler(this.FormDragStart);
             this.notificationText.MouseMove += new System.Windows.Forms.MouseEventHandler(this.FormDrag);
             this.notificationText.MouseUp += new System.Windows.Forms.MouseEventHandler(this.FormDragEnd);
@@ -138,7 +138,7 @@ namespace VPN_Connection {
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.PowderBlue;
-            this.ClientSize = new System.Drawing.Size(250, 40);
+            this.ClientSize = new System.Drawing.Size(200, 40);
             this.Controls.Add(this.notificationTextExtend);
             this.Controls.Add(this.notificationText);
             this.Controls.Add(this.notificationStatusIcon);

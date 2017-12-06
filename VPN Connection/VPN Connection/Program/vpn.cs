@@ -107,19 +107,19 @@ namespace VPN_Connection {
         }
 
         public void disconnectPPTP() {
-            BackgroundWorker BW = new BackgroundWorker();
-            BW.DoWork += (sender, args) => {
+            /*BackgroundWorker BW = new BackgroundWorker();
+            BW.DoWork += (sender, args) => {*/
                 RasConnection conn;
                 if((conn = getConnectionStatus()) != null) {
-                    conn.HangUp(true);
+                    conn.HangUp();
                     logging.writeToLog(null, String.Format("[disconnectPPTP] Disconnect Success"), 1);
                     conn = null;
                 }
-            };
+            /*};
             BW.RunWorkerCompleted += (sender, args) => {
                 vpn_connected = false;
             };
-            BW.RunWorkerAsync();
+            BW.RunWorkerAsync();*/
         }
 
         public RasConnection getConnectionStatus() {

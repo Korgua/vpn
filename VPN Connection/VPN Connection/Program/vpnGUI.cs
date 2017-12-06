@@ -46,18 +46,19 @@ namespace VPN_Connection {
             if (vpn.getConnectionStatus() == null) {
                 if (attempts <= vpn.vpnData.maxAttempt) {
                     if (vpn.testInternetConnection(false)) {
+                        logging.writeToLog(null, "vpn.testInternetConnection(false)", 3);
                         if (vpnPreviousState != 1) {
-                            Anim.activateNotification(this, vpnPreviousState);
+                            Anim.activateNotification(this, 1);
                         }
                         vpnPreviousState = 1;
                         vpn.Dialer();
                     }
-                    /*else{
-                        if (vpnPreviousState != 3){
-                            Anim.activateNotification(this, 3, vpn.error);
+                    else{
+                        if (vpnPreviousState != 4){
+                            Anim.activateNotification(this, 4, vpn.error);
                         }
-                        vpnPreviousState = 3;
-                    }*/
+                        vpnPreviousState = 4;
+                    }
                 }
                 else {
                     vpnPreviousState = 3;
@@ -176,23 +177,26 @@ namespace VPN_Connection {
         }
 
         private void statusIconContext_Hover(object sender, EventArgs e) {
-            BackgroundWorker BW = new BackgroundWorker();
+            this.Opacity = 1;
+            /*BackgroundWorker BW = new BackgroundWorker();
             BW.DoWork += Anim.Stretch;
             BW.RunWorkerCompleted += (_sender, _args) => {
                 BW.DoWork -= Anim.Stretch;
                 BW.Dispose();
             };
-            BW.RunWorkerAsync();
+            BW.RunWorkerAsync();*/
         }
         private void statusIconContext_Leave(object sender, EventArgs e) {
+            Thread.Sleep(3000);
+            this.Opacity = 0.50;
             //Anim.activateNotification(this, vpnPreviousState, vpn.error);
-            BackgroundWorker BW = new BackgroundWorker();
+            /*BackgroundWorker BW = new BackgroundWorker();
             BW.DoWork += Anim.Shrink;
             BW.RunWorkerCompleted += (_sender, _args) => {
                 BW.DoWork -= Anim.Shrink;
                 BW.Dispose();
             };
-            BW.RunWorkerAsync();
+            BW.RunWorkerAsync();*/
         }
     }
 }
