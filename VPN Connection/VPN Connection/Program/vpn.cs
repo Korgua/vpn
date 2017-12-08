@@ -89,8 +89,8 @@ namespace VPN_Connection {
                     dialer.StateChanged += (sender, args) => {
                         logging.writeToLog(null, String.Format("[Dialer] dialer.StateChanged: {0}", args.State), 1);
                     };
-                    //dialer.DialAsync();
-                    dialer.Dial();
+                    dialer.DialAsync();
+                    //dialer.Dial();
                     vpn_connected = true;
                     logging.writeToLog(null, String.Format("[Dialer] Success"), 2);
                 }

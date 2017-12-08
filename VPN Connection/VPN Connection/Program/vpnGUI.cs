@@ -177,7 +177,7 @@ namespace VPN_Connection {
         }
 
         private void statusIconContext_Hover(object sender, EventArgs e) {
-            this.Opacity = 1;
+            //this.Opacity = 1;
             /*BackgroundWorker BW = new BackgroundWorker();
             BW.DoWork += Anim.Stretch;
             BW.RunWorkerCompleted += (_sender, _args) => {
@@ -187,8 +187,8 @@ namespace VPN_Connection {
             BW.RunWorkerAsync();*/
         }
         private void statusIconContext_Leave(object sender, EventArgs e) {
-            Thread.Sleep(3000);
-            this.Opacity = 0.50;
+            //Thread.Sleep(3000);
+            //this.Opacity = 0.50;
             //Anim.activateNotification(this, vpnPreviousState, vpn.error);
             /*BackgroundWorker BW = new BackgroundWorker();
             BW.DoWork += Anim.Shrink;
