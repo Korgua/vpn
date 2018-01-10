@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program\Animation.cs" />
+    <Compile Include="Program\PetrolineAPI.cs" />
     <Compile Include="Program\logging.cs" />
     <Compile Include="vpn_connection.cs" />
     <Compile Include="vpn_connection.Designer.cs">

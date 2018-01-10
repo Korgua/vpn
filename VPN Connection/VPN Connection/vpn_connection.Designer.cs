@@ -74,18 +74,6 @@ namespace VPN_Connection {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("5")]
-        public int notification_length {
-            get {
-                return ((int)(this["notification_length"]));
-            }
-            set {
-                this["notification_length"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("5")]
         public int max_attempt_to_reconnect {
             get {
                 return ((int)(this["max_attempt_to_reconnect"]));
@@ -109,37 +97,13 @@ namespace VPN_Connection {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("06:00:00")]
-        public global::System.TimeSpan silent_mode_end {
-            get {
-                return ((global::System.TimeSpan)(this["silent_mode_end"]));
-            }
-            set {
-                this["silent_mode_end"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("192.168.80.8")]
+        [global::System.Configuration.DefaultSettingValueAttribute("192.168.75.8")]
         public string vpn_test_ip {
             get {
                 return ((string)(this["vpn_test_ip"]));
             }
             set {
                 this["vpn_test_ip"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("22:00:00")]
-        public global::System.TimeSpan silent_mode_start {
-            get {
-                return ((global::System.TimeSpan)(this["silent_mode_start"]));
-            }
-            set {
-                this["silent_mode_start"] = value;
             }
         }
     }

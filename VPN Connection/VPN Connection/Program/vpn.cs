@@ -89,8 +89,8 @@ namespace VPN_Connection {
                     dialer.StateChanged += (sender, args) => {
                         logging.writeToLog(null, String.Format("[Dialer] dialer.StateChanged: {0}", args.State), 1);
                     };
-                    dialer.DialAsync();
-                    //dialer.Dial();
+                    //dialer.DialAsync();
+                    dialer.Dial();
                     vpn_connected = true;
                     logging.writeToLog(null, String.Format("[Dialer] Success"), 2);
                 }
@@ -107,19 +107,12 @@ namespace VPN_Connection {
         }
 
         public void disconnectPPTP() {
-            /*BackgroundWorker BW = new BackgroundWorker();
-            BW.DoWork += (sender, args) => {*/
                 RasConnection conn;
                 if((conn = getConnectionStatus()) != null) {
                     conn.HangUp();
                     logging.writeToLog(null, String.Format("[disconnectPPTP] Disconnect Success"), 1);
                     conn = null;
                 }
-            /*};
-            BW.RunWorkerCompleted += (sender, args) => {
-                vpn_connected = false;
-            };
-            BW.RunWorkerAsync();*/
         }
 
         public RasConnection getConnectionStatus() {
@@ -159,9 +152,6 @@ namespace VPN_Connection {
                 logging.writeToLog(null, String.Format("[resolveIP][Exception] {0} is unreachable with SOCKET: {1}", host, e.Message));
             }
             return null;
-/*
-            
-            return null;*/
         }
 
         public bool testInternetConnection(bool checkInnerNetwork = false) {

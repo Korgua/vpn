@@ -21,7 +21,7 @@ namespace VPN_Connection {
             InitializeComponent();
             vpn.disconnectPPTP();
             this.Location = new Point(Screen.FromPoint(this.Location).WorkingArea.Right - this.Width, 0);
-            Anim = new animation(this, this.Width, this.Height, this.Opacity, vpn.vpnData.notificationLength);
+            Anim = new animation(this, this.Width, this.Height, this.Opacity);
             this.Load += (sender, args) => Anim.activateNotification(this, 1);
             logging.writeToLog(null, String.Format("[Program] Begin"), 1);
             connectionTesting.Tick += establishConnection;
@@ -31,17 +31,6 @@ namespace VPN_Connection {
 
 
         private void establishConnection(object sender, EventArgs args) {
-            TimeSpan currentTime = DateTime.Now.TimeOfDay;
-            if(currentTime < vpn.vpnData.silentmode_end || currentTime > vpn.vpnData.silentmode_start) {
-                logging.writeToLog(null, String.Format("Silent mode activated"), 3);
-                this.Visible = false;
-            }
-            else {
-                if(!this.Visible) {
-                    logging.writeToLog(null, String.Format("Silent mode deactivated"), 3);
-                    this.Visible = true;
-                }
-            }
             logging.writeToLog(null, String.Format("[establishConnection] Begin"), 3);
             if (vpn.getConnectionStatus() == null) {
                 if (attempts <= vpn.vpnData.maxAttempt) {
@@ -66,7 +55,7 @@ namespace VPN_Connection {
                     connectionTesting.Interval = vpn.vpnData.stateInterval * 2;
                     attempts = 0;
                     logging.writeToLog(null, String.Format("[establishConnection] Error: {0}", vpn.error), 1);
-                    logging.writeToLog(null, String.Format("[establishConnection] Max attempt achieved without vpn connection! Increasing timeout to: {0}", connectionTesting.Interval), 1);
+                    logging.writeToLog(null, String.Format("[establishConnection] Max attempt reached without vpn connection! Increasing timeout to: {0}", connectionTesting.Interval), 1);
                 }
             }
             else {
@@ -174,29 +163,6 @@ namespace VPN_Connection {
             waitBeforeExit.Start();
             vpn.disconnectPPTP();
             connectionTesting.Stop();
-        }
-
-        private void statusIconContext_Hover(object sender, EventArgs e) {
-            //this.Opacity = 1;
-            /*BackgroundWorker BW = new BackgroundWorker();
-            BW.DoWork += Anim.Stretch;
-            BW.RunWorkerCompleted += (_sender, _args) => {
-                BW.DoWork -= Anim.Stretch;
-                BW.Dispose();
-            };
-            BW.RunWorkerAsync();*/
-        }
-        private void statusIconContext_Leave(object sender, EventArgs e) {
-            //Thread.Sleep(3000);
-            //this.Opacity = 0.50;
-            //Anim.activateNotification(this, vpnPreviousState, vpn.error);
-            /*BackgroundWorker BW = new BackgroundWorker();
-            BW.DoWork += Anim.Shrink;
-            BW.RunWorkerCompleted += (_sender, _args) => {
-                BW.DoWork -= Anim.Shrink;
-                BW.Dispose();
-            };
-            BW.RunWorkerAsync();*/
         }
     }
 }
