@@ -11,7 +11,6 @@ namespace VPN_Connection {
     public class vpn {
         public vpnData vpnData = new vpnData();
         private logging logging = new logging();
-        private RasConnectionStatus Rsc;
         private string path = AppDomain.CurrentDomain.BaseDirectory + @".\\vpn.pbk";
         public string error { get; set; }
         public bool vpn_connected = false;
@@ -19,8 +18,12 @@ namespace VPN_Connection {
         private RasPhoneBook createPhoneBook() {
             string ip;
             if ((ip = resolveIP(vpnData.host)) == null){
-                logging.writeToLog(null, String.Format("[createPhoneBook] {0} not found",vpnData.host));
+                logging.writeToLog(null, String.Format("[createPhoneBook] {0} not found",ip));
                 return null;
+            }
+            if(ip.Contains("http://")) {
+                logging.writeToLog(null, String.Format("[createPhoneBook] {0} is not valid vpn hostname", ip));
+                ip = ip.Replace("http://", "");
             }
             if(File.Exists(path)) {
                 try {
@@ -60,7 +63,7 @@ namespace VPN_Connection {
             RasEntry entry = RasEntry.CreateVpnEntry(vpnData.entryName, ip, RasVpnStrategy.PptpFirst, device);
             try {
                 book.Entries.Add(entry);
-                logging.writeToLog(null, String.Format("[createPhoneBook][Write to Phonebook] Success"),2);
+                logging.writeToLog(null, String.Format("[createPhoneBook][Write to Phonebook] Success {0} --> {1}",vpnData.entryName,ip),2);
             }
             catch(Exception e) {
                 logging.writeToLog(null, String.Format("[createPhoneBook][Add phonebook entry] Exception found: {0}", e.Message));
@@ -75,11 +78,12 @@ namespace VPN_Connection {
             RasPhoneBook book;
             if((book = createPhoneBook()) != null ) {
                 try {
-                    string ip = resolveIP(vpnData.host);
+                    //string ip = resolveIP(vpnData.host);
                     RasDialer dialer = new RasDialer();
                     dialer.PhoneBookPath = book.Path;
                     dialer.Credentials = new NetworkCredential(vpnData.username, vpnData.password);
                     dialer.EntryName = vpnData.entryName;
+                    dialer.Timeout = 5000;
                     dialer.DialCompleted += (sender, args) => {
                         logging.writeToLog(null, String.Format("[Dialer] DialCompleted"), 2);
                     };
@@ -126,30 +130,40 @@ namespace VPN_Connection {
         }
 
         public string resolveIP(string host) {
-            try {
-                String ip = Dns.GetHostEntry(host).AddressList[0].ToString();
-                logging.writeToLog(null, String.Format("[resolveIP] {0} found, IP address: {1}", host, ip), 2);
-                return ip;
-            }
-            catch(Exception e) {
-                try {
-                    using(Ping Ping = new Ping()) {
-                        try {
-                            PingReply PingReply = Ping.Send(host);
-                            if(PingReply.Status == IPStatus.Success) {
-                                logging.writeToLog(null, String.Format("[resolveIP] {0} found, IP address: {1}", host, PingReply.Address), 2);
-                                return PingReply.Address.ToString();
-                            }
-                        }
-                        catch(Exception e_) {
-                            logging.writeToLog(null, String.Format("[resolveIP][Exception] Ping {0} thrown an exception: {1}", host, e_.Message));
+            if(host != vpnData.host) {
+                logging.writeToLog(null, String.Format("[resolveIP] Trying to resolve {0} with Ping", host), 2);
+                using(Ping Ping = new Ping()) {
+                    try {
+                        PingReply PingReply = Ping.Send(host, 1000);
+                        if(PingReply.Status == IPStatus.Success) {
+                            logging.writeToLog(null, String.Format("[resolveIP] {0} found via ping, IP address: {1}", host, PingReply.Address), 2);
+                            return PingReply.Address.ToString();
                         }
                     }
+                    catch(Exception e_) {
+                        logging.writeToLog(null, String.Format("[resolveIP][Exception] {0} is unreachable with PING: {1}", host, e_.Message));
+                    }
                 }
-                catch(Exception e__) {
-                    logging.writeToLog(null, String.Format("[resolveIP][Exception] {0} is unreachable with PING: {1}", host, e__.Message));
+            }
+            else {
+                try {
+                    logging.writeToLog(null, String.Format("[resolveIP] Trying to resolve {0} with HttpWebSocket", host), 2);
+                    HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(host);
+                    httpWebRequest.Timeout = 2000;
+                    HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+                    if(httpWebResponse.StatusCode == HttpStatusCode.OK) {
+                        logging.writeToLog(null, String.Format("[resolveIP] {0} found via HttpWebRequest", host), 2);
+                        httpWebResponse.Close();
+                        return host;
+                    }
+                    else {
+                        httpWebResponse.Close();
+                        return null;
+                    }
                 }
-                logging.writeToLog(null, String.Format("[resolveIP][Exception] {0} is unreachable with SOCKET: {1}", host, e.Message));
+                catch(Exception e_) {
+                    logging.writeToLog(null, String.Format("[resolveIP][Exception] {0} is unreachable with HttpWebRequest: {1}", host, e_.Message));
+                }
             }
             return null;
         }

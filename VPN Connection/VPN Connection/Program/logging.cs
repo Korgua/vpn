@@ -72,7 +72,7 @@ namespace VPN_Connection {
             try {
                 StreamWriter log = new StreamWriter(logPath + actualFileName, true);
                 DateTimeOffset logStart = new DateTimeOffset(DateTime.Now);
-                if(multiline != null && depth <= logDepth) {
+                if(multiline != null && (depth <= logDepth || depth == 10)) {
                     bool isFirst = true;
                     foreach(string s in multiline) {
                         if(isFirst) {
@@ -90,7 +90,7 @@ namespace VPN_Connection {
                         }
                     }
                 }
-                else if(line != null && depth <= logDepth) {
+                else if(line != null && (depth <= logDepth || depth == 10)) {
                     log.WriteLine(logStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t" + line));
                     if(logInConsole) {
                         Console.WriteLine(logStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t" + line));

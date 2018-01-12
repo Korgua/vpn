@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="vpn_host" Type="System.String" Scope="User">
-      <Value Profile="(Default)">www.petrolcard.hu</Value>
+      <Value Profile="(Default)">http://petrolcard.hu</Value>
     </Setting>
     <Setting Name="vpn_password" Type="System.String" Scope="User">
       <Value Profile="(Default)">jundjkft</Value>
@@ -15,10 +15,10 @@
       <Value Profile="(Default)">petrolcard.hu</Value>
     </Setting>
     <Setting Name="max_attempt_to_reconnect" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">5</Value>
+      <Value Profile="(Default)">2</Value>
     </Setting>
     <Setting Name="checking_state_interval" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">30</Value>
+      <Value Profile="(Default)">5</Value>
     </Setting>
     <Setting Name="vpn_test_ip" Type="System.String" Scope="User">
       <Value Profile="(Default)">192.168.75.8</Value>

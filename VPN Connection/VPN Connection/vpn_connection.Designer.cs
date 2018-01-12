@@ -25,7 +25,7 @@ namespace VPN_Connection {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("www.petrolcard.hu")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://petrolcard.hu")]
         public string vpn_host {
             get {
                 return ((string)(this["vpn_host"]));
@@ -73,7 +73,7 @@ namespace VPN_Connection {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
         public int max_attempt_to_reconnect {
             get {
                 return ((int)(this["max_attempt_to_reconnect"]));
@@ -85,7 +85,7 @@ namespace VPN_Connection {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("30")]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
         public int checking_state_interval {
             get {
                 return ((int)(this["checking_state_interval"]));
