@@ -5,33 +5,36 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.ServiceProcess;
 using System.Threading.Tasks;
 
 namespace vh_vpn {
-    public class vpn_connector {
+    public class VPN_connector {
         private CONSTANTS CONSTANTS = new CONSTANTS();
         private logging logging = new logging();
         private string path = AppDomain.CurrentDomain.BaseDirectory + @".\\vpn.pbk";
-        public string error { get; set; }
+        public string resolveError { get; set; }
+        public string connectError { get; set; }
         public bool vpn_connected = false;
+        ServiceController sc = new ServiceController("vh_vpn_service");
 
         private RasPhoneBook createPhoneBook() {
             string ip;
             if ((ip = resolveIP(CONSTANTS.host)) == null){
-                logging.writeToLog(null, String.Format("[createPhoneBook] {0} not found",ip));
+                logging.writeToLog(null, String.Format("[createPhoneBook] {0} not found",ip),1);
                 return null;
             }
             if(ip.Contains("http://")) {
-                logging.writeToLog(null, String.Format("[createPhoneBook] {0} is not valid vpn hostname", ip));
+                logging.writeToLog(null, String.Format("[createPhoneBook] {0} is not valid vpn hostname", ip),1);
                 ip = ip.Replace("http://", "");
             }
             if(File.Exists(path)) {
                 try {
                     System.IO.File.Delete(path);
-                    logging.writeToLog(null, String.Format("[createPhoneBook][Remove old phonebook] success", 3));
+                    logging.writeToLog(null, String.Format("[createPhoneBook][Remove old phonebook] success"), 3);
                 }
                 catch(Exception e) {
-                    logging.writeToLog(null, String.Format("[createPhoneBook][Remove old phonebook] Exception found: {0}", e.Message));
+                    logging.writeToLog(null, String.Format("[createPhoneBook][Remove old phonebook] Exception found: {0}", e.Message),0);
                     return null;
                 }
             }
@@ -42,7 +45,8 @@ namespace vh_vpn {
                 }
             }
             catch(Exception e) {
-                logging.writeToLog(null, String.Format("[createPhoneBook] Exception found: {0}", e.Message));
+                connectError = "Can't create phonebook at" + path;
+                logging.writeToLog(null, String.Format("[createPhoneBook] Exception found: {0}", e.Message),0);
                 return null;
             }
 
@@ -52,21 +56,25 @@ namespace vh_vpn {
                 logging.writeToLog(null, String.Format("[createPhoneBook][Open Phonebook] Success"),2);
             }
             catch(Exception e) {
-                logging.writeToLog(null, String.Format("[createPhoneBook][Open Phonebook] Exception found: {0}", e.Message));
+                connectError = "Can't open phonebook at" + path;
+                logging.writeToLog(null, String.Format("[createPhoneBook][Open Phonebook] Exception found: {0}", e.Message),0);
                 return null;
             }
             RasDevice device = RasDevice.GetDevices().Where(o => o.Name.Contains("PPTP")).FirstOrDefault();
             if(device == null) {
+                connectError = "Useable device for VPN not found";
                 logging.writeToLog(null, String.Format("[createPhoneBook][Device] Useable device for VPN not found"),1);
+                return null;
 
             }
             RasEntry entry = RasEntry.CreateVpnEntry(CONSTANTS.entryName, ip, RasVpnStrategy.PptpFirst, device);
             try {
                 book.Entries.Add(entry);
-                logging.writeToLog(null, String.Format("[createPhoneBook][Write to Phonebook] Success {0} --> {1}",CONSTANTS.entryName,ip),2);
+                logging.writeToLog(null, String.Format("[createPhoneBook][Write to Phonebook] Success"),2);
             }
             catch(Exception e) {
-                logging.writeToLog(null, String.Format("[createPhoneBook][Add phonebook entry] Exception found: {0}", e.Message));
+                connectError = String.Format("Can't add the following entry to the phonebook: {0}",entry);
+                logging.writeToLog(null, String.Format("[createPhoneBook][Add phonebook entry] Exception found: {0}", e.Message),0);
                 return null;
             }
             return book;
@@ -77,13 +85,15 @@ namespace vh_vpn {
 
             RasPhoneBook book;
             if((book = createPhoneBook()) != null ) {
+                RasDialer dialer;
                 try {
                     //string ip = resolveIP(CONSTANTS.host);
-                    RasDialer dialer = new RasDialer();
-                    dialer.PhoneBookPath = book.Path;
-                    dialer.Credentials = new NetworkCredential(CONSTANTS.username, CONSTANTS.password);
-                    dialer.EntryName = CONSTANTS.entryName;
-                    dialer.Timeout = 5000;
+                     dialer = new RasDialer {
+                        PhoneBookPath = book.Path,
+                        Credentials = new NetworkCredential(CONSTANTS.username, CONSTANTS.password),
+                        EntryName = CONSTANTS.entryName,
+                        Timeout = 5000
+                    };
                     dialer.DialCompleted += (sender, args) => {
                         logging.writeToLog(null, String.Format("[Dialer] DialCompleted"), 2);
                     };
@@ -99,15 +109,16 @@ namespace vh_vpn {
                     logging.writeToLog(null, String.Format("[Dialer] Success"), 2);
                 }
                 catch (Exception e) {
-                    logging.writeToLog(null, String.Format("[Dialer][Exception] {0}", e.Message));
+                    connectError = String.Format("Can't connect because: {0}", e.Message);
+                    logging.writeToLog(null, String.Format("[Dialer][Exception] {0}", e.Message),0);
+                    //disconnectPPTP();
                 }
             }
             book = null;
+            if(connectError != null) {
+                logging.writeToLog(null, String.Format("[Dialer] There was an error while dialing: {0}",connectError), 1);
+            }
             logging.writeToLog(null, String.Format("[Dialer] End"),3);
-        }
-
-        private void Dialer_StateChanged(object sender, StateChangedEventArgs e) {
-            throw new NotImplementedException();
         }
 
         public void disconnectPPTP() {
@@ -122,6 +133,7 @@ namespace vh_vpn {
         public RasConnection getConnectionStatus() {
             RasConnection conn = RasConnection.GetActiveConnections().Where(o => o.EntryName == CONSTANTS.entryName).FirstOrDefault();
             if(conn != null) {
+                connectError = null;
                 logging.writeToLog(null, String.Format("[getConnectionStatus] VPN connection is active"),2);
                 return conn;
             }
@@ -131,7 +143,7 @@ namespace vh_vpn {
 
         public string resolveIP(string host) {
             if(host != CONSTANTS.host) {
-                logging.writeToLog(null, String.Format("[resolveIP] Trying to resolve {0} with Ping", host), 2);
+                logging.writeToLog(null, String.Format("[resolveIP] Trying to resolve {0} with Ping", host), 3);
                 using(Ping Ping = new Ping()) {
                     try {
                         PingReply PingReply = Ping.Send(host, 1000);
@@ -140,19 +152,19 @@ namespace vh_vpn {
                             return PingReply.Address.ToString();
                         }
                         else {
-                            logging.writeToLog(null, String.Format("[resolveIP] {0} is unreachable with PING", host));
+                            logging.writeToLog(null, String.Format("[resolveIP] {0} is unreachable with PING", host),1);
                             return null;
                         }
                     }
                     catch(Exception e_) {
-                        logging.writeToLog(null, String.Format("[resolveIP][Exception] {0} is unreachable with PING: {1}", host, e_.Message));
+                        logging.writeToLog(null, String.Format("[resolveIP][Exception] {0} is unreachable with PING: {1}", host, e_.Message),0);
                     }
                 }
             }
             else {
                 try {
                     string _host = "http://" + host;
-                    logging.writeToLog(null, String.Format("[resolveIP] Trying to resolve {0} with HttpWebSocket", _host), 2);
+                    logging.writeToLog(null, String.Format("[resolveIP] Trying to resolve {0} with HttpWebSocket", _host), 3);
                     HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(_host);
                     httpWebRequest.Timeout = 2000;
                     HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
@@ -163,12 +175,12 @@ namespace vh_vpn {
                     }
                     else {
                         httpWebResponse.Close();
-                        logging.writeToLog(null, String.Format("[resolveIP]{0} is unreachable with HttpWebRequest", host));
+                        logging.writeToLog(null, String.Format("[resolveIP]{0} is unreachable with HttpWebRequest", host),1);
                         return null;
                     }
                 }
                 catch(Exception e_) {
-                    logging.writeToLog(null, String.Format("[resolveIP][Exception] {0} is unreachable with HttpWebRequest: {1}", host, e_.Message));
+                    logging.writeToLog(null, String.Format("[resolveIP][Exception] {0} is unreachable with HttpWebRequest: {1}", host, e_.Message),0);
                 }
             }
             return null;
@@ -177,21 +189,21 @@ namespace vh_vpn {
         public bool testInternetConnection(bool checkInnerNetwork = false) {
             logging.writeToLog(null, String.Format("[testInternetConnection] Begin"),3);
             if(resolveIP("google-public-dns-a.google.com")==null) {
-                error = "Nincs internetkapcsolat";
+                resolveError = "Nincs internetkapcsolat";
                 return false;
             }
             if(resolveIP(CONSTANTS.host) == null) {
-                error = "VPN szerver nem érhető el";
+                resolveError = "VPN szerver nem érhető el";
                 return false;
             }
             if(checkInnerNetwork) {
                 if (resolveIP(CONSTANTS.test_ip) == null) {
-                    error = "Belső hálózat nem érhető el";
+                    resolveError = "Belső hálózat nem érhető el";
                     return false;
                 }
             }
             logging.writeToLog(null, String.Format("[testInternetConnection] End"),3);
-            error = null;
+            resolveError = null;
             return true;
         }
     }

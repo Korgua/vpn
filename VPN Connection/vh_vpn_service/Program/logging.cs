@@ -9,16 +9,20 @@ namespace vh_vpn {
         List<string> loggingExc = new List<string>();
         private string logPath = AppDomain.CurrentDomain.BaseDirectory + @"\\log"; //@".\\log\vpn_";
         private DateTimeOffset logDateStart;
-        private string actualFileName;
+        //private string actualFileName;
         private bool logInConsole = true;
         private int logDepth = 3; //0: Only exceptions, 1: function fails, 2: function succes, 3: everything
         public logging() {
             //createLogFile();
         }
 
-        public bool createLogFile() {
+        public string createLogFile(string prefix) {
             logDateStart = new DateTimeOffset(DateTime.Now);
-            actualFileName = "\\vpn_" + logDateStart.ToString("yyyy.MM.dd_HH") + "_" + Environment.UserName + ".txt";
+            String actualFileName = String.Empty;
+            if (prefix != null) {
+                actualFileName = "\\" + prefix+ "_" + logDateStart.ToString("yyyy.MM.dd_HH") + "_" + Environment.UserName + ".txt";
+            }
+            else actualFileName = "\\" + logDateStart.ToString("yyyy.MM.dd_HH") + "_" + Environment.UserName + ".txt";
             try {
                 Directory.CreateDirectory(logPath);
                 FileStream fs = null;
@@ -35,7 +39,7 @@ namespace vh_vpn {
                                     Console.WriteLine(logDateStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t------------   Log Start   ------------"));
                                 }
                                 log.Close();
-                                return true;
+                                return actualFileName;
                             }
                             catch (Exception e__) {
                                 Console.WriteLine(String.Format("Logging exception while insert Log start: {0}", e__.Message));
@@ -48,7 +52,7 @@ namespace vh_vpn {
                         }
                     }
                     else {
-                        return true;
+                        return actualFileName;
                     }
                 }
                 catch (Exception e_) {
@@ -62,14 +66,26 @@ namespace vh_vpn {
                     Console.WriteLine(s);
                 }
             }
-            return false;
+            return null;
         }
         public void writeToLog(List<string> multiline, string line, int depth = 0) {
-            createLogFile();
+            string actualFileName = String.Empty;
+            if (depth <= 1) {
+                actualFileName = createLogFile("Error");
+                if (multiline != null) {
+                    writeToLog(multiline, null, 3);
+                }
+                else {
+                    writeToLog(null, line, 3);
+                }
+            }
+            else {
+                actualFileName = createLogFile(null);
+            }
             try {
                 StreamWriter log = new StreamWriter(logPath + actualFileName, true);
                 DateTimeOffset logStart = new DateTimeOffset(DateTime.Now);
-                if (multiline != null && (depth <= logDepth || depth == 10)) {
+                if (multiline != null && depth <= logDepth) {
                     bool isFirst = true;
                     foreach (string s in multiline) {
                         if (isFirst) {
@@ -87,7 +103,7 @@ namespace vh_vpn {
                         }
                     }
                 }
-                else if (line != null && (depth <= logDepth || depth == 10)) {
+                else if (line != null && depth <= logDepth) {
                     log.WriteLine(logStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t" + line));
                     if (logInConsole) {
                         Console.WriteLine(logStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t" + line));

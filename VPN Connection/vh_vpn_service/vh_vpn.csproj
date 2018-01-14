@@ -68,10 +68,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CONSTANTS.cs" />
+    <Compile Include="Program\Encryption.cs" />
     <Compile Include="Program\logging.cs" />
     <Compile Include="Program\PetrolineAPI.cs" />
     <Compile Include="Program\manage_vpn.cs" />
-    <Compile Include="Program\vpn_connector.cs" />
+    <Compile Include="Program\VPN_connector.cs" />
     <Compile Include="ProjectInstaller.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -94,7 +95,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
     <None Include="vpn.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -118,6 +121,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

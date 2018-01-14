@@ -1,39 +1,42 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Timers;
 
 namespace vh_vpn {
-    public class manage_vpn {
+    public class Manage_vpn {
         private Timer connectionTesting = new Timer();
         private Timer statusUpdate = new Timer();
         private PetrolineAPI papi = new PetrolineAPI();
         private CONSTANTS CONSTANTS = new CONSTANTS();
+        private vh_vpn vh_Vpn;
 
         private int counter = 0;
-        private string vpnPreviousError;
-        private vpn_connector vpn = new vpn_connector();
+        private string vpnPreviousResolveError,vpnPreviousConnectError;
+        private VPN_connector vpn = new VPN_connector();
         private logging logging = new logging();
         private int vpnPreviousState = 1; //0:not connected, 1: connecting, 2: connected, 3: vpn connection failed, 4: network error
         private int attempts = 0;
-        public manage_vpn() {
-            logging.writeToLog(null, String.Format("[Program] Begin"), 1);
+        public Manage_vpn(vh_vpn vh_Vpn) {
+            this.vh_Vpn = vh_Vpn;
+            logging.writeToLog(null, String.Format("[Program] Begin"), 3);
             statusUpdate.Interval = 1;
-            connectionTesting.Elapsed += establishConnection;
+            connectionTesting.Elapsed += EstablishConnection;
             connectionTesting.Interval = 1;
             connectionTesting.Start();
         }
 
 
-        private void establishConnection(object sender, EventArgs args) {
-            logging.writeToLog(null, String.Format("[establishConnection] Begin"), 3);
+        private void EstablishConnection(object sender, EventArgs args) {
+            logging.writeToLog(null, String.Format("[EstablishConnection] Begin"), 3);
             statusUpdate.Stop();
-            statusUpdate.Elapsed -= updateStatus;
+            statusUpdate.Elapsed -= UpdateStatus;
             counter = 0;
-            statusUpdate.Elapsed += updateStatus;
+            statusUpdate.Elapsed += UpdateStatus;
             statusUpdate.Start();
 
             if (Convert.ToInt32(connectionTesting.Interval) != CONSTANTS.stateInterval) {
                 connectionTesting.Interval = CONSTANTS.stateInterval;
-                logging.writeToLog(null, String.Format("[establishConnection] Set timeout back to {0}", CONSTANTS.stateInterval), 3);
+                logging.writeToLog(null, String.Format("[EstablishConnection] Set timeout back to {0}", CONSTANTS.stateInterval), 3);
             }
             int connTest = Convert.ToInt32(connectionTesting.Interval);
             if (vpn.getConnectionStatus() == null) {
@@ -44,7 +47,7 @@ namespace vh_vpn {
                     }
                     else {
                         if (vpnPreviousState != 4) {
-                            papi.sendStatus(0, connTest);
+                            papi.SendStatus(0, connTest);
                         }
                         vpnPreviousState = 4;
                     }
@@ -53,15 +56,23 @@ namespace vh_vpn {
                     vpnPreviousState = 3;
                     connectionTesting.Interval = CONSTANTS.wait;
                     attempts = 0;
-                    logging.writeToLog(null, String.Format("[establishConnection] Error: {0}", vpn.error), 10);
-                    if (vpnPreviousError != vpn.error) {
-                        papi.sendStatus(0, connTest, "Max attempt reached without vpn connection: " + vpn.error);
-                        vpnPreviousError = vpn.error;
+                    if(vpn.resolveError != null)
+                        logging.writeToLog(null, String.Format("[EstablishConnection] Error: {0}", vpn.resolveError), 1);
+                    if (vpn.connectError != null) {
+                        logging.writeToLog(null, String.Format("[EstablishConnection] Error: {0}", vpn.connectError), 1);
+                    }
+                    if (vpnPreviousResolveError != vpn.resolveError) {
+                        papi.SendStatus(0, CONSTANTS.wait, "Max attempt reached without vpn connection: " + vpn.resolveError);
+                        vpnPreviousResolveError = vpn.resolveError;
+                    }
+                    else if(vpnPreviousConnectError != vpn.connectError) {
+                        papi.SendStatus(0, CONSTANTS.wait, "Max attempt reached without vpn connection: " + vpn.connectError);
+                        vpnPreviousConnectError = vpn.connectError;
                     }
                     else {
-                        papi.sendStatus(0, connTest);
+                        papi.SendStatus(0, connTest - counter);
                     }
-                    logging.writeToLog(null, String.Format("[establishConnection] Max attempt reached without vpn connection! Increasing timeout to: {0}", connectionTesting.Interval), 10);
+                    logging.writeToLog(null, String.Format("[EstablishConnection] Max attempt reached without vpn connection! Increasing timeout to: {0}", connectionTesting.Interval), 1);
                 }
             }
             else {
@@ -70,40 +81,57 @@ namespace vh_vpn {
                         vpnPreviousState = 4;
                         attempts = 0;
                         connectionTesting.Interval = CONSTANTS.wait;
-                        if (vpnPreviousError != vpn.error) {
-                            papi.sendStatus(0, connTest, "Max attempt reached with vpn connection: " + vpn.error);
-                            vpnPreviousError = vpn.error;
+                        if (vpn.resolveError != null)
+                            logging.writeToLog(null, String.Format("[EstablishConnection] Error: {0}", vpn.resolveError), 1);
+                        if (vpn.connectError != null)
+                            logging.writeToLog(null, String.Format("[EstablishConnection] Error: {0}", vpn.connectError), 1);
+                        if (vpnPreviousResolveError != vpn.resolveError) {
+                            papi.SendStatus(0, CONSTANTS.wait, "Max attempt reached with vpn connection: " + vpn.resolveError);
+                            vpnPreviousResolveError = vpn.resolveError;
+                        }
+                        else if (vpnPreviousConnectError != vpn.connectError) {
+                            papi.SendStatus(0, CONSTANTS.wait, "Max attempt reached without vpn connection: " + vpn.connectError);
+                            vpnPreviousConnectError = vpn.connectError;
                         }
                         else {
-                            papi.sendStatus(0, connTest);
+                            papi.SendStatus(0, connTest - counter);
                         }
-                        logging.writeToLog(null, String.Format("[establishConnection] Max attempt achieved with vpn connection! Increasing timeout to: {0}", connectionTesting.Interval), 10);
+                        logging.writeToLog(null, String.Format("[EstablishConnection] Max attempt achieved with vpn connection! Increasing timeout to: {0}", connectionTesting.Interval), 1);
                     }
                     else {
                         vpnPreviousState = 1;
-                        logging.writeToLog(null, String.Format("[establishConnection] Error: {0}", vpn.error), 10);
+                        logging.writeToLog(null, String.Format("[EstablishConnection] Error: {0}", vpn.resolveError), 1);
                     }
                 }
                 else {
                     if (vpnPreviousState == 0 || vpnPreviousState == 1) {
                         vpnPreviousState = 2;
                     }
-                    logging.writeToLog(null, String.Format("[establishConnection] Vpn connection is alive"), 10);
+                    logging.writeToLog(null, String.Format("[EstablishConnection] Vpn connection is alive"), 2);
                     attempts = 0;
                 }
             }
-            logging.writeToLog(null, String.Format("[establishConnection] Attempts: {0}/{1}, current interval: {2}", attempts++, CONSTANTS.maxAttempt, connectionTesting.Interval), 3);
+            logging.writeToLog(null, String.Format("[EstablishConnection][End] Attempts: {0}/{1}, current interval: {2}", attempts++, CONSTANTS.maxAttempt, connectionTesting.Interval), 3);
+            if (vpn.connectError.Contains("denied")) {
+                connectionTesting.Stop();
+                statusUpdate.Stop();
+                papi.SendStatus(0, connTest - counter, vpn.connectError);
+                vh_Vpn.ExitCode = 0;
+                vh_Vpn.Stop();
+            }
         }
 
 
-        private void updateStatus(object sender, EventArgs args) {
+        private void UpdateStatus(object sender, EventArgs args) {
             if (statusUpdate.Interval == 1) {
                 statusUpdate.Interval = 1000;
             }
-            
-                papi.sendStatus(vpnPreviousState==1?1:0, Convert.ToInt32(connectionTesting.Interval) - (++counter * 1000));
-
-
+            if (vpnPreviousState == 2) {
+                papi.SendStatus(1);
+            }
+            else {
+                papi.SendStatus(0, Convert.ToInt32(connectionTesting.Interval) - (++counter * 1000));
+            }
         }
     }
 }

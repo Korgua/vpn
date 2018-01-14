@@ -35,15 +35,6 @@ namespace vh_vpn {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("jundjkft")]
-        public string vpn_password {
-            get {
-                return ((string)(this["vpn_password"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("jundjkft")]
         public string vpn_username {
             get {
                 return ((string)(this["vpn_username"]));
@@ -52,7 +43,7 @@ namespace vh_vpn {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("petrolcard.hu")]
+        [global::System.Configuration.DefaultSettingValueAttribute("vhvpn")]
         public string vpn_entry_name {
             get {
                 return ((string)(this["vpn_entry_name"]));
@@ -79,7 +70,7 @@ namespace vh_vpn {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("192.168.70.80")]
+        [global::System.Configuration.DefaultSettingValueAttribute("192.168.70.8")]
         public string vpn_test_ip {
             get {
                 return ((string)(this["vpn_test_ip"]));
@@ -101,6 +92,15 @@ namespace vh_vpn {
         public int wait_after_failed_connection {
             get {
                 return ((int)(this["wait_after_failed_connection"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("jundjkft")]
+        public string vpn_password {
+            get {
+                return ((string)(this["vpn_password"]));
             }
         }
     }

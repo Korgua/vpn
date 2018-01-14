@@ -2,6 +2,7 @@
 //using System.Web;
 using System.IO;
 using System.Net;
+using System.Text;
 
 namespace vh_vpn{
     /*
@@ -17,14 +18,21 @@ namespace vh_vpn{
                                 RSS         = "&rss="; //&rss=0|1|2;blablabla
 
         
-       public string sendStatus(int _state = 0, int _nextTry = 2000, string _rss = "") {
-            Console.WriteLine(String.Format("_state: {0}, _nextTry: {1}, _rss: {2}",_state, _nextTry, _rss));
-            _rss = WebUtility.UrlEncode(_rss);
+       public string SendStatus(int _state = 0, int _nextTry = 0, string _rss = "") {
             if(_nextTry >= 1000) {
                 _nextTry /= 1000;
             }
-            string url = URL + STATE + _state + NEXT_TRY + _nextTry + RSS + _rss;
-            logging.writeToLog(null, String.Format("[sendStatus] Sending status: {0}", url), 3);
+            string url = URL + STATE + _state;
+            if (_nextTry != 0) {
+                url += (NEXT_TRY + _nextTry);
+            }
+            if (_rss != "") {
+                byte[] bytes = Encoding.Default.GetBytes(_rss);
+                _rss = Encoding.UTF8.GetString(bytes);
+                _rss = WebUtility.UrlEncode(_rss);
+                url += (RSS + _rss);
+                }
+            logging.writeToLog(null, String.Format("[SendStatus] Sending status: {0}", url), 3);
             try {
                 HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
                 httpWebRequest.Timeout = 1000;
@@ -36,7 +44,7 @@ namespace vh_vpn{
                 }
             }
             catch(Exception e) {
-                //logging.writeToLog(null, String.Format("[sendStatus] Exception error: {0} --> {1}",e.Message, url), 1);
+                logging.writeToLog(null, String.Format("[SendStatus] Exception error: {0} --> {1}",e.Message, url), 1);
             }
             return null;
        }

@@ -11,7 +11,6 @@ namespace vh_vpn {
         /// The main entry point for the application.
         /// </summary>
         private static logging logging = new logging();
-        private static vpn_connector vpn = new vpn_connector();
 
         static void Main(String[] args) {
             logging.writeToLog(null, "A szolgáltatás elindítása folyamatban", 0);
