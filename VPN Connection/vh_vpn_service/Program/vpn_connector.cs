@@ -5,12 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.ServiceProcess;
 using System.Threading.Tasks;
 
 namespace vh_vpn {
     public class VPN_connector {
-        private CONSTANTS CONSTANTS = new CONSTANTS();
+        private CONSTANTS CONSTANTS = new CONSTANTS("@VPN_connector");
         private logging logging = new logging();
         private string path = AppDomain.CurrentDomain.BaseDirectory + @".\\vpn.pbk";
         public string resolveError { get; set; }

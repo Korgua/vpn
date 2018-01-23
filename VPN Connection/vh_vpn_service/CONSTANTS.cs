@@ -26,8 +26,8 @@ namespace vh_vpn {
         public static string CONFIG_FILE_PATH = AppDomain.CurrentDomain.BaseDirectory + @"\\vh_vpn.exe.config";
 
 
-        public CONSTANTS() {
-            logging.writeToLog(null, String.Format("[CONSTANTS]Reading up the constants"),3);
+        public CONSTANTS(string whichClass) {
+            logging.writeToLog(null, String.Format("[CONSTANTS][{0}] Reading up the constants",whichClass),3);
             checkConfigFile();
             EncryptConfigFile();
             try {
@@ -37,7 +37,7 @@ namespace vh_vpn {
                 test_ip = encryption.Decrypt(vpn.Default.vpn_test_ip);
             }
             catch(Exception e) {
-                logging.writeToLog(null, String.Format("[CONSTANTS]Exception while decrypting: {0}",e.Message),0);
+                logging.writeToLog(null, String.Format("[CONSTANTS][{0}]Exception while decrypting: {1}",whichClass,e.Message),0);
             }
             entryName = vpn.Default.vpn_entry_name;
             maxAttempt = vpn.Default.max_attempt_to_reconnect;
@@ -89,7 +89,7 @@ namespace vh_vpn {
 "               <value>5</value>\n" +
 "           </setting>\n" +
 "           <setting name=\"vpn_test_ip\" serializeAs=\"String\">\n" +
-"               <value>192.168.70.8</value>\n" +
+"               <value>192.168.75.8</value>\n" +
 "           </setting>\n" +
 "           <setting name=\"BackupDirectory\" serializeAs=\"String\">\n" +
 "               <value>DefaultFolder</value>\n" +

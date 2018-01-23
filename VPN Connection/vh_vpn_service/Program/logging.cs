@@ -9,18 +9,18 @@ namespace vh_vpn {
         List<string> loggingExc = new List<string>();
         private string logPath = AppDomain.CurrentDomain.BaseDirectory + @"\\log"; //@".\\log\vpn_";
         private DateTimeOffset logDateStart;
-        //private string actualFileName;
         private bool logInConsole = true;
         private int logDepth = 3; //0: Only exceptions, 1: function fails, 2: function succes, 3: everything
-        public logging() {
-            //createLogFile();
+        private string Prefix = String.Empty;
+        public logging(string _Prefix = "") {
+            this.Prefix = _Prefix;//createLogFile();
         }
 
-        public string createLogFile(string prefix) {
+        public string createLogFile() {
             logDateStart = new DateTimeOffset(DateTime.Now);
             String actualFileName = String.Empty;
-            if (prefix != null) {
-                actualFileName = "\\" + prefix+ "_" + logDateStart.ToString("yyyy.MM.dd_HH") + "_" + Environment.UserName + ".txt";
+            if (Prefix != null && Prefix != "" ) {
+                actualFileName = "\\" + Prefix+ "_" + logDateStart.ToString("yyyy.MM.dd_HH") + "_" + Environment.UserName + ".txt";
             }
             else actualFileName = "\\" + logDateStart.ToString("yyyy.MM.dd_HH") + "_" + Environment.UserName + ".txt";
             try {
@@ -71,7 +71,8 @@ namespace vh_vpn {
         public void writeToLog(List<string> multiline, string line, int depth = 0) {
             string actualFileName = String.Empty;
             if (depth <= 1) {
-                actualFileName = createLogFile("Error");
+                this.Prefix = "Error";
+                actualFileName = createLogFile();
                 if (multiline != null) {
                     writeToLog(multiline, null, 3);
                 }
@@ -80,7 +81,8 @@ namespace vh_vpn {
                 }
             }
             else {
-                actualFileName = createLogFile(null);
+                this.Prefix = "";
+                actualFileName = createLogFile();
             }
             try {
                 StreamWriter log = new StreamWriter(logPath + actualFileName, true);
