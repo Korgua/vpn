@@ -170,7 +170,7 @@ namespace vh_vpn {
 
         private void deleteLogFiles(object sender, EventArgs args) {
             if(logDelete.Interval == 1) {
-                logDelete.Interval = 1000 * 60 * 1;
+                logDelete.Interval = 1000 * 60 * 60 * 24;
             }
             logging.deleteOldFiles();
         }
