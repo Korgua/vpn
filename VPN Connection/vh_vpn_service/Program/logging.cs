@@ -12,7 +12,7 @@ namespace vh_vpn {
         private bool logInConsole = true;
         private int logDepth = 3; //0: Only exceptions, 1: function fails, 2: function succes, 3: everything
         private string Prefix = String.Empty;
-        public logging(string _Prefix = "") {
+        public logging(string _Prefix = "vpn") {
             this.Prefix = _Prefix;//createLogFile();
         }
 
@@ -20,9 +20,9 @@ namespace vh_vpn {
             logDateStart = new DateTimeOffset(DateTime.Now);
             String actualFileName = String.Empty;
             if (Prefix != null && Prefix != "" ) {
-                actualFileName = "\\" + Prefix+ "_" + logDateStart.ToString("yyyy.MM.dd_HH") + "_" + Environment.UserName + ".txt";
+                actualFileName = "\\" + Prefix+ "_" + logDateStart.ToString("yyyy.MM.dd") + ".txt";
             }
-            else actualFileName = "\\" + logDateStart.ToString("yyyy.MM.dd_HH") + "_" + Environment.UserName + ".txt";
+            else actualFileName = "\\" + logDateStart.ToString("yyyy.MM.dd") + ".txt";
             try {
                 Directory.CreateDirectory(logPath);
                 FileStream fs = null;
@@ -70,6 +70,7 @@ namespace vh_vpn {
         }
         public void writeToLog(List<string> multiline, string line, int depth = 0) {
             string actualFileName = String.Empty;
+            string prevPrefix = this.Prefix;
             if (depth <= 1) {
                 this.Prefix = "Error";
                 actualFileName = createLogFile();
@@ -79,9 +80,10 @@ namespace vh_vpn {
                 else {
                     writeToLog(null, line, 3);
                 }
+                this.Prefix = prevPrefix;
             }
             else {
-                this.Prefix = "";
+                //this.Prefix = "";
                 actualFileName = createLogFile();
             }
             try {
@@ -119,6 +121,32 @@ namespace vh_vpn {
 
             foreach (string s in loggingExc) {
                 Console.WriteLine(s);
+            }
+        }
+
+        public void deleteOldFiles() {
+            String[] files = Directory.GetFiles(logPath);
+            List<String> _files = new List<string>();
+            DateTime dt = DateTime.Now;
+            bool delete = false;
+            foreach (var i in files) {
+                TimeSpan diff = dt.Subtract(File.GetLastWriteTime(i));
+                if(diff.Days > 5) {
+                    if (!delete) {
+                        delete = true;
+                        writeToLog(null, String.Format("[deleteOldFiles] Files that older than 5 day are deleting now..."), 3);
+                    }
+                    try {
+                        writeToLog(null, String.Format("[deleteOldFiles] These files should be deleted right now: {0}",i), 3);
+                        File.Delete(i);
+                    }
+                    catch(Exception e) {
+                        writeToLog(null, String.Format("[deleteOldFiles][Exception] The following file can not be deleted: {0} because {1}",i,e.Message), 0);
+                    }
+                }
+            }
+            if (delete) {
+                writeToLog(null, String.Format("[deleteOldFiles] Files deleted"), 3);
             }
         }
     }
