@@ -48,8 +48,6 @@ namespace vh_vpn {
 
         public void checkConfigFile() {
             logging.writeToLog(null, String.Format("[checkConfigFile]Start"),3);
-            string encypted_name = encryption.Encrypt("jundjkft");
-            string decypted_name = encryption.Decrypt(encypted_name);
             if (!File.Exists(CONFIG_FILE_PATH)) {
                 logging.writeToLog(null, String.Format("[checkConfigFile]There is no config file. Trying to create it"),3);
                 try {

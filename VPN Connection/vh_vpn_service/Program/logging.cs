@@ -13,7 +13,7 @@ namespace vh_vpn {
         private int logDepth = 3; //0: Only exceptions, 1: function fails, 2: function succes, 3: everything
         private string Prefix = String.Empty;
         public logging(string _Prefix = "vpn") {
-            this.Prefix = _Prefix;//createLogFile();
+            this.Prefix = _Prefix;
         }
 
         public string createLogFile() {
@@ -70,7 +70,7 @@ namespace vh_vpn {
         }
         public void writeToLog(List<string> multiline, string line, int depth = 0) {
             string actualFileName = String.Empty;
-            string prevPrefix = this.Prefix;
+            /*string prevPrefix = this.Prefix;
             if (depth <= 1) {
                 this.Prefix = "Error";
                 actualFileName = createLogFile();
@@ -86,39 +86,42 @@ namespace vh_vpn {
                 //this.Prefix = "";
                 actualFileName = createLogFile();
             }
-            try {
-                StreamWriter log = new StreamWriter(logPath + actualFileName, true);
-                DateTimeOffset logStart = new DateTimeOffset(DateTime.Now);
-                if (multiline != null && depth <= logDepth) {
-                    bool isFirst = true;
-                    foreach (string s in multiline) {
-                        if (isFirst) {
-                            log.WriteLine(logStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t" + s));
-                            if (logInConsole) {
-                                Console.WriteLine(logStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t" + s));
+            /*/actualFileName = createLogFile();
+            using(StreamWriter log = new StreamWriter(logPath + actualFileName, true)) {
+                try {
+                    DateTimeOffset logStart = new DateTimeOffset(DateTime.Now);
+                    if(multiline != null && depth <= logDepth) {
+                        bool isFirst = true;
+                        foreach(string s in multiline) {
+                            if(isFirst) {
+                                log.WriteLine(logStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t" + s));
+                                if(logInConsole) {
+                                    Console.WriteLine(logStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t" + s));
+                                }
+                                isFirst = false;
                             }
-                            isFirst = false;
-                        }
-                        else {
-                            log.WriteLine(logStart.ToString("                       ") + ("\t" + s));
-                            if (logInConsole) {
-                                Console.WriteLine(logStart.ToString("                       ") + ("\t" + s));
+                            else {
+                                log.WriteLine(logStart.ToString("                       ") + ("\t" + s));
+                                if(logInConsole) {
+                                    Console.WriteLine(logStart.ToString("                       ") + ("\t" + s));
+                                }
                             }
                         }
                     }
-                }
-                else if (line != null && depth <= logDepth) {
-                    log.WriteLine(logStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t" + line));
-                    if (logInConsole) {
-                        Console.WriteLine(logStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t" + line));
+                    else if(line != null && depth <= logDepth) {
+                        log.WriteLine(logStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t" + line));
+                        if(logInConsole) {
+                            Console.WriteLine(logStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t" + line));
+                        }
                     }
                 }
-                log.Close();
+                catch(Exception e) {
+                    loggingExc.Add("Writing to log file exception: " + e.Message + " --> " + line);
+                }
+                finally {
+                    log.Close();
+                }
             }
-            catch (Exception e) {
-                loggingExc.Add("Writing to log file exception: " + e.Message + " --> " + line);
-            }
-
             foreach (string s in loggingExc) {
                 Console.WriteLine(s);
             }

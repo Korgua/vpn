@@ -88,7 +88,6 @@ namespace vh_vpn {
             if((book = createPhoneBook()) != null ) {
                 RasDialer dialer;
                 try {
-                    //string ip = resolveIP(CONSTANTS.host);
                      dialer = new RasDialer {
                         PhoneBookPath = book.Path,
                         Credentials = new NetworkCredential(CONSTANTS.username, CONSTANTS.password),
@@ -104,7 +103,6 @@ namespace vh_vpn {
                     dialer.StateChanged += (sender, args) => {
                         logging.writeToLog(null, String.Format("[Dialer] dialer.StateChanged: {0}", args.State), 1);
                     };
-                    //dialer.DialAsync();
                     dialer.Dial();
                     vpn_connected = true;
                     logging.writeToLog(null, String.Format("[Dialer] Success"), 2);
@@ -112,7 +110,6 @@ namespace vh_vpn {
                 catch (Exception e) {
                     connectError = String.Format("Can't connect because: {0}", e.Message);
                     logging.writeToLog(null, String.Format("[Dialer][Exception] {0}", e.Message),0);
-                    //disconnectPPTP();
                 }
             }
             book = null;
@@ -147,7 +144,7 @@ namespace vh_vpn {
                 logging.writeToLog(null, String.Format("[resolveIP] Trying to resolve {0} with Ping", host), 3);
                 using(Ping Ping = new Ping()) {
                     try {
-                        PingReply PingReply = Ping.Send(host, 1000);
+                        PingReply PingReply = Ping.Send(host, 2500);
                         if (PingReply.Status == IPStatus.Success) {
                             logging.writeToLog(null, String.Format("[resolveIP] {0} found via ping, IP address: {1}", host, PingReply.Address), 2);
                             return PingReply.Address.ToString();
@@ -167,7 +164,7 @@ namespace vh_vpn {
                     string _host = "http://" + host;
                     logging.writeToLog(null, String.Format("[resolveIP] Trying to resolve {0} with HttpWebSocket", _host), 3);
                     HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(_host);
-                    httpWebRequest.Timeout = 2000;
+                    httpWebRequest.Timeout = 2500;
                     HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
                     if(httpWebResponse.StatusCode == HttpStatusCode.OK) {
                         logging.writeToLog(null, String.Format("[resolveIP] {0} found via HttpWebRequest", _host), 2);
@@ -190,8 +187,10 @@ namespace vh_vpn {
         public bool testInternetConnection(bool checkInnerNetwork = false) {
             logging.writeToLog(null, String.Format("[testInternetConnection] Begin"),3);
             if(resolveIP("google-public-dns-a.google.com")==null) {
-                resolveError = "Nincs internetkapcsolat";
-                return false;
+                if(resolveIP("google-public-dns-b.google.com") == null) {
+                    resolveError = "Nincs internetkapcsolat";
+                    return false;
+                }
             }
             if(resolveIP(CONSTANTS.host) == null) {
                 resolveError = "VPN szerver nem érhető el";
