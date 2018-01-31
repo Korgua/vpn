@@ -28,8 +28,8 @@ namespace vh_vpn {
 
         public CONSTANTS(string whichClass) {
             logging.writeToLog(null, String.Format("[CONSTANTS][{0}] Reading up the constants",whichClass),3);
-            checkConfigFile();
-            EncryptConfigFile();
+            /*checkConfigFile();
+            EncryptConfigFile();*/
             try {
                 host = encryption.Decrypt(vpn.Default.vpn_host);
                 username = encryption.Decrypt(vpn.Default.vpn_username);
