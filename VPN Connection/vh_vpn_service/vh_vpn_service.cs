@@ -7,19 +7,19 @@ namespace vh_vpn {
         private EventLog eventLog;
 
         private logging logging = new logging();
-        private VPN_connector vpn_connector = new VPN_connector();
+        private Manage_vpn manage_Vpn;
 
         protected override void OnStart(string[] args) {
             eventLog.Source = CONSTANTS.EVENT_LOG_SOURCE;
             logging.writeToLog(null, String.Format("A szolgáltatás elindult"), 2);
             eventLog.WriteEntry("A VPN szolgáltatás elindult");
-            new Manage_vpn(this);
+            manage_Vpn = new Manage_vpn(this);
         }
 
         protected override void OnStop() {
             logging.writeToLog(null, String.Format("A szolgáltatás leállt"),2);
             eventLog.WriteEntry("A VPN szolgáltatás leállt");
-            vpn_connector.disconnectPPTP();
+            manage_Vpn.vpn.disconnectPPTP();
         }
 
         protected override void OnContinue() {

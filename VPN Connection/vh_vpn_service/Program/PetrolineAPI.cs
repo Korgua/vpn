@@ -14,15 +14,12 @@ namespace vh_vpn {
                                 RSS = "&rss="; //&rss=0|1|2;blablabla
 
 
-        public string SendStatus(int _state = 0, int _nextTry = -1, string _rss = "") {
-            if (_nextTry >= 1000) {
-                _nextTry /= 1000;
-            }
+        public string SendStatus(int _state = 0, int _nextTry = -1, string _rss = null) {
             string url = URL + STATE + _state;
             if (_nextTry != -1) {
                 url += (NEXT_TRY + _nextTry);
             }
-            if (_rss != "") {
+            if (_rss != null) {
                 _rss = "2;" + _rss;
                 Encoding iso = Encoding.GetEncoding("ISO-8859-1");
                 Encoding utf8 = Encoding.UTF8;
@@ -35,7 +32,7 @@ namespace vh_vpn {
             logging.writeToLog(null, String.Format("[SendStatus] Sending status: {0}", url), 3);
             try {
                 HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
-                httpWebRequest.Timeout = 2500;
+                httpWebRequest.Timeout = 2000;
                 HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
                 Stream streamResponse = httpWebResponse.GetResponseStream();
                 using (StreamReader streamReader = new StreamReader(streamResponse)) {
@@ -45,7 +42,7 @@ namespace vh_vpn {
                 }
             }
             catch (Exception e) {
-                //logging.writeToLog(null, String.Format("[SendStatus] Exception error: {0} --> {1}", e.Message, url), 1);
+                logging.writeToLog(null, String.Format("[SendStatus] Exception error: {0} --> {1}", e.Message, url), 1);
             }
             return null;
         }

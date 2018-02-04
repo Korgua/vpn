@@ -11,12 +11,8 @@ namespace vh_vpn {
         private DateTimeOffset logDateStart;
         private bool logInConsole = true;
         private int logDepth = 3; //0: Only exceptions, 1: function fails, 2: function succes, 3: everything
-        private string Prefix = String.Empty;
-        public logging(string _Prefix = "vpn") {
-            this.Prefix = _Prefix;
-        }
 
-        public string createLogFile() {
+        public string createLogFile(string Prefix = "vpn") {
             logDateStart = new DateTimeOffset(DateTime.Now);
             String actualFileName = String.Empty;
             if (Prefix != null && Prefix != "" ) {
@@ -70,23 +66,12 @@ namespace vh_vpn {
         }
         public void writeToLog(List<string> multiline, string line, int depth = 0) {
             string actualFileName = String.Empty;
-            /*string prevPrefix = this.Prefix;
             if (depth <= 1) {
-                this.Prefix = "Error";
-                actualFileName = createLogFile();
-                if (multiline != null) {
-                    writeToLog(multiline, null, 3);
-                }
-                else {
-                    writeToLog(null, line, 3);
-                }
-                this.Prefix = prevPrefix;
+                actualFileName = createLogFile("Error");
             }
             else {
-                //this.Prefix = "";
                 actualFileName = createLogFile();
             }
-            /*/actualFileName = createLogFile();
             using(StreamWriter log = new StreamWriter(logPath + actualFileName, true)) {
                 try {
                     DateTimeOffset logStart = new DateTimeOffset(DateTime.Now);

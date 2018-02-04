@@ -28,8 +28,6 @@ namespace vh_vpn {
 
         public CONSTANTS(string whichClass) {
             logging.writeToLog(null, String.Format("[CONSTANTS][{0}] Reading up the constants",whichClass),3);
-            /*checkConfigFile();
-            EncryptConfigFile();*/
             try {
                 host = encryption.Decrypt(vpn.Default.vpn_host);
                 username = encryption.Decrypt(vpn.Default.vpn_username);
@@ -41,12 +39,12 @@ namespace vh_vpn {
             }
             entryName = vpn.Default.vpn_entry_name;
             maxAttempt = vpn.Default.max_attempt_to_reconnect;
-            stateInterval = vpn.Default.checking_state_interval * 1000;
+            stateInterval = vpn.Default.checking_state_interval;
             backupDir = vpn.Default.BackupDirectory;
-            wait = vpn.Default.wait_after_failed_connection * 1000;
+            wait = vpn.Default.wait_after_failed_connection;
         }
 
-        public void checkConfigFile() {
+        public bool checkConfigFile() {
             logging.writeToLog(null, String.Format("[checkConfigFile]Start"),3);
             if (!File.Exists(CONFIG_FILE_PATH)) {
                 logging.writeToLog(null, String.Format("[checkConfigFile]There is no config file. Trying to create it"),3);
@@ -104,20 +102,24 @@ namespace vh_vpn {
                         }
                         catch (Exception e__) {
                             logging.writeToLog(null,String.Format("[ConfigFile]Exception while insert into {0}: {1}", CONFIG_FILE_PATH, e__.Message),0);
+                            return false;
                         }
                     }
                 }
                 catch (Exception e___) {
-                    logging.writeToLog(null, String.Format("[ConfigFile]Exception while create log file: {0}  --> {1}", CONFIG_FILE_PATH, e___.Message),0);
+                    logging.writeToLog(null, String.Format("[ConfigFile]Exception while create config file: {0}  --> {1}", CONFIG_FILE_PATH, e___.Message),0);
+                    return false;
                 }
             }
             else {
                 logging.writeToLog(null, String.Format("[checkConfigFile]Config file is available"),3);
+                return true;
             }
             logging.writeToLog(null, String.Format("[checkConfigFile]End"),3);
+            return true;
         }
 
-        public void EncryptConfigFile() {
+        public bool EncryptConfigFile() {
             logging.writeToLog(null, string.Format("[EncryptConfigFile]Start"),3);
             XmlDocument xmlDoc = new XmlDocument();
             try {
@@ -167,12 +169,15 @@ namespace vh_vpn {
                 }
                 catch (Exception e) {
                     logging.writeToLog(null, String.Format("[EncryptConfigFile] Exception found while parsing the config file: {0}",e.Message),0);
+                    return false;
                 }
             }
             catch (Exception e) {
                 logging.writeToLog(null, String.Format("[EncryptConfigFile]Exception while open the config file at: {0} --> {1}", CONFIG_FILE_PATH, e.Message),0);
+                return false;
             }
             logging.writeToLog(null, string.Format("[EncryptConfigFile]End"),3);
+            return true;
         }
     }
 }

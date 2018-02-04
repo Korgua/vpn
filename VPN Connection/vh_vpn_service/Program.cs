@@ -7,9 +7,6 @@ using System.Threading.Tasks;
 
 namespace vh_vpn {
     class Program {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
         private static logging logging = new logging();
 
         static void Main(String[] args) {
