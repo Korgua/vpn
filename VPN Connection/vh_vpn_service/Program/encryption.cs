@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace vh_vpn {
     class Encryption {
 
         private static string HASH_KEY = "V|-|C0m";
-        private logging logging = new logging();
+        private Logging logging = new Logging();
         public string Encrypt(string text) {
             byte[] data = UTF8Encoding.UTF8.GetBytes(text);
             using(MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider()) {
@@ -28,6 +25,7 @@ namespace vh_vpn {
 
         public string Decrypt(string text) {
             text = text.Replace("@", "");
+            text = text.Replace("^", "");
             byte[] data = Convert.FromBase64String(text);
             using (MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider()) {
                 byte[] keys = md5.ComputeHash(UTF8Encoding.UTF8.GetBytes(HASH_KEY));
@@ -42,7 +40,5 @@ namespace vh_vpn {
                 }
             }
         }
-
-
     }
 }

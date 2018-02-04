@@ -7,14 +7,15 @@ using System.Threading.Tasks;
 
 namespace vh_vpn {
     class Program {
-        private static logging logging = new logging();
+        private static Logging logging = new Logging();
 
         static void Main(String[] args) {
-            logging.writeToLog(null, "A szolgáltatás elindítása folyamatban", 0);
-            ServiceBase serviceBase = new vh_vpn();
-            serviceBase.CanShutdown = true;
-            serviceBase.CanStop = true;
-            ServiceBase.Run(new vh_vpn());
+            logging.WriteToLog(null, "A szolgáltatás elindítása folyamatban", 0);
+            ServiceBase serviceBase = new Vh_vpn {
+                CanShutdown = true,
+                CanStop = true
+            };
+            ServiceBase.Run(new Vh_vpn());
         }
     }
 }

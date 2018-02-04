@@ -7,7 +7,7 @@ using System.Text;
 namespace vh_vpn {
 
     class PetrolineAPI {
-        private logging logging = new logging();
+        private Logging logging = new Logging();
         private static string URL = "http://localhost:7698/vpnstatus",
                                 STATE = "&state=",
                                 NEXT_TRY = "&nexttry=",
@@ -29,7 +29,7 @@ namespace vh_vpn {
                 _rss = WebUtility.UrlEncode(_rss);
                 url += (RSS + _rss);
             }
-            logging.writeToLog(null, String.Format("[SendStatus] Sending status: {0}", url), 3);
+            logging.WriteToLog(null, String.Format("[SendStatus] Sending status: {0}", url), 3);
             try {
                 HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
                 httpWebRequest.Timeout = 2000;
@@ -42,7 +42,7 @@ namespace vh_vpn {
                 }
             }
             catch (Exception e) {
-                logging.writeToLog(null, String.Format("[SendStatus] Exception error: {0} --> {1}", e.Message, url), 1);
+                logging.WriteToLog(null, String.Format("[SendStatus] Exception error: {0} --> {1}", e.Message, url), 1);
             }
             return null;
         }

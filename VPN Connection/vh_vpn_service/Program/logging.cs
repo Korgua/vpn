@@ -4,7 +4,7 @@ using System.IO;
 
 namespace vh_vpn {
 
-    public class logging {
+    public class Logging {
 
         List<string> loggingExc = new List<string>();
         private string logPath = AppDomain.CurrentDomain.BaseDirectory + @"\\log"; //@".\\log\vpn_";
@@ -12,7 +12,7 @@ namespace vh_vpn {
         private bool logInConsole = true;
         private int logDepth = 3; //0: Only exceptions, 1: function fails, 2: function succes, 3: everything
 
-        public string createLogFile(string Prefix = "vpn") {
+        public string CreateLogFile(string Prefix = "vpn") {
             logDateStart = new DateTimeOffset(DateTime.Now);
             String actualFileName = String.Empty;
             if (Prefix != null && Prefix != "" ) {
@@ -64,13 +64,13 @@ namespace vh_vpn {
             }
             return null;
         }
-        public void writeToLog(List<string> multiline, string line, int depth = 0) {
+        public void WriteToLog(List<string> multiline, string line, int depth = 0) {
             string actualFileName = String.Empty;
             if (depth <= 1) {
-                actualFileName = createLogFile("Error");
+                actualFileName = CreateLogFile("Error");
             }
             else {
-                actualFileName = createLogFile();
+                actualFileName = CreateLogFile();
             }
             using(StreamWriter log = new StreamWriter(logPath + actualFileName, true)) {
                 try {
@@ -112,7 +112,7 @@ namespace vh_vpn {
             }
         }
 
-        public void deleteOldFiles() {
+        public void DeleteOldFiles() {
             String[] files = Directory.GetFiles(logPath);
             List<String> _files = new List<string>();
             DateTime dt = DateTime.Now;
@@ -122,19 +122,19 @@ namespace vh_vpn {
                 if(diff.Days > 5) {
                     if (!delete) {
                         delete = true;
-                        writeToLog(null, String.Format("[deleteOldFiles] Files that older than 5 day are deleting now..."), 3);
+                        WriteToLog(null, String.Format("[deleteOldFiles] Files that older than 5 day are deleting now..."), 3);
                     }
                     try {
-                        writeToLog(null, String.Format("[deleteOldFiles] These files should be deleted right now: {0}",i), 3);
+                        WriteToLog(null, String.Format("[deleteOldFiles] These files should be deleted right now: {0}",i), 3);
                         File.Delete(i);
                     }
                     catch(Exception e) {
-                        writeToLog(null, String.Format("[deleteOldFiles][Exception] The following file can not be deleted: {0} because {1}",i,e.Message), 0);
+                        WriteToLog(null, String.Format("[deleteOldFiles][Exception] The following file can not be deleted: {0} because {1}",i,e.Message), 0);
                     }
                 }
             }
             if (delete) {
-                writeToLog(null, String.Format("[deleteOldFiles] Files deleted"), 3);
+                WriteToLog(null, String.Format("[deleteOldFiles] Files deleted"), 3);
             }
         }
     }

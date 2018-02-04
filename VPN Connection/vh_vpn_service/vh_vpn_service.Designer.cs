@@ -1,6 +1,6 @@
 ﻿namespace vh_vpn
 {
-    partial class vh_vpn
+    partial class Vh_vpn
     {
         /// <summary> 
         /// Required designer variable.
