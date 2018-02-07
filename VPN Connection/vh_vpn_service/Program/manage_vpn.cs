@@ -147,7 +147,7 @@ namespace vh_vpn {
                 statusUpdate.Interval = 1000;
             }
             //we are waiting for next reconnect or the status checking
-            if (counter == 0) {
+            if (counter <= 0) {
                 counter = CONSTANTS.StateInterval;
                 EstablishConnection();
             }
