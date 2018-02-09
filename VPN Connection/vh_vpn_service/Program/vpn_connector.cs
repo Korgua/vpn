@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 
 namespace vh_vpn {
@@ -148,13 +149,47 @@ namespace vh_vpn {
         }
 
         /// <summary>
-        /// Testing the remote hosts and servers via socket
+        /// Testing the remote hosts and servers via socket/PING
         /// </summary>
         /// <param name="host">Which host/server need to be checked</param>
         /// <param name="mask">Don't write the host/server address to log file, mask it</param>
         /// <param name="port">With which port need to be checked?</param>
         public string ResolveIP(string host, string mask,int port = 80) {
-            using (TcpClient client = new TcpClient()) {
+            logging.WriteToLog(null, String.Format("[resolveIP] Trying to resolve {0} ", host), 3);
+
+            if(port != 80) {
+                using(Ping ping = new Ping()) {
+                    try {
+                        PingReply reply = ping.Send(host, 2000);
+                        if(reply.Status == IPStatus.Success) {
+                            logging.WriteToLog(null, String.Format("[resolveIP] {0} found via Ping", mask), 2);
+                            return host;
+                        }
+                    }
+                    catch(PingException e) {
+                        logging.WriteToLog(null, String.Format("[resolveIP][Exception] {0} is unreachable via Ping: {1}", mask, e.Message), 0);
+                    }
+                }
+            }
+            else {
+                try {
+                    string http = "";
+                    if(!host.Contains("http://")) {
+                        http = "http://";
+                    }
+                    HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(http+host);
+                    httpWebRequest.Timeout = 2000;
+                    HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+                    if(httpWebResponse.StatusCode == HttpStatusCode.OK) {
+                        logging.WriteToLog(null, String.Format("[resolveIP] {0} found via WebRequest", host), 2);
+                        return host;
+                    }
+                }
+                catch(Exception e) {
+                    logging.WriteToLog(null, String.Format("[resolveIP][Exception] {0} is unreachable via WebRequest: {1}", host, e.Message), 0);
+                }
+            }
+            /*using (TcpClient client = new TcpClient()) {
                 logging.WriteToLog(null, String.Format("[resolveIP] Trying to resolve {0} ", mask), 3);
                 IAsyncResult asyncResult = client.BeginConnect(host, port, null, null);
                 System.Threading.WaitHandle WaitHandle = asyncResult.AsyncWaitHandle;
@@ -173,7 +208,7 @@ namespace vh_vpn {
                 finally {
                     WaitHandle.Close();
                 }
-            }
+            }*/
             return null;
         }
 
@@ -183,10 +218,12 @@ namespace vh_vpn {
         /// <param name="checkInnerNetwork">Need to check the inner network? Default is false</param>
         public bool TestInternetConnection(bool checkInnerNetwork = false) {
             logging.WriteToLog(null, String.Format("[testInternetConnection] Begin"), 3);
-            if (ResolveIP("google.com","google.com") == null) {
-                if (ResolveIP("facebook.com","facebook.com") == null) {
-                    ResolveError = "Nincs internetkapcsolat";
-                    return false;
+            if (ResolveIP("8.8.8.8","google public dns A",1) == null) {
+                if(ResolveIP("8.8.8.8", "google public dns B",1) == null) {
+                    if(ResolveIP("http://www.facebook.com", "facebook.com") == null) {
+                        ResolveError = "Nincs internetkapcsolat";
+                        return false;
+                    }
                 }
             }
             if (ResolveIP(CONSTANTS.Host,"vpn server") == null) {
@@ -194,8 +231,12 @@ namespace vh_vpn {
                 return false;
             }
             if (checkInnerNetwork) {
-                if (ResolveIP(CONSTANTS.Test_ip,"inner network", 22) == null) {
+                if (ResolveIP(CONSTANTS.Test_ip,"inner network", 1) == null) {
                     ResolveError = "Belső hálózat nem érhető el";
+                    return false;
+                }
+                if(ResolveIP("91.82.128.141","VPN tunnel",1) == null){
+                    ResolveError = "A VPN híd megszakadt";
                     return false;
                 }
             }
