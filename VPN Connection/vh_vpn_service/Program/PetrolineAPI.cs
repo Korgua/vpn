@@ -42,7 +42,10 @@ namespace vh_vpn {
                 }
             }
             catch (Exception e) {
-                logging.WriteToLog(null, String.Format("[SendStatus] Exception error: {0} --> {1}", e.Message, url), 1);
+                if(System.Diagnostics.Process.GetProcessesByName("Main").Length > 0) {
+                    logging.WriteToLog(null, String.Format("[SendStatus] Exception error: {0} --> {1}", e.Message, url), 1);
+                }
+                //logging.WriteToLog(null, String.Format("[SendStatus] Exception error: {0} --> {1}", e.Message, url), 1);
             }
             return null;
         }

@@ -65,16 +65,16 @@ namespace vh_vpn {
             return null;
         }
         public void WriteToLog(List<string> multiline, string line, int depth = 0) {
-            string actualFileName = String.Empty;
-            if (depth <= 1) {
-                actualFileName = CreateLogFile("Error");
-            }
-            else {
-                actualFileName = CreateLogFile();
-            }
+            string actualFileName = CreateLogFile();
+            string errorFileName = CreateLogFile("Error");
+
             using(StreamWriter log = new StreamWriter(logPath + actualFileName, true)) {
+                StreamWriter errorLog = new StreamWriter(logPath + errorFileName, true);
                 try {
                     DateTimeOffset logStart = new DateTimeOffset(DateTime.Now);
+                    if(depth <= 1) {
+                        errorLog.WriteLine(logStart.ToString("yyyy.MM.dd HH:mm:ss:fff") + ("\t" + line));
+                    }
                     if(multiline != null && depth <= logDepth) {
                         bool isFirst = true;
                         foreach(string s in multiline) {
@@ -105,6 +105,7 @@ namespace vh_vpn {
                 }
                 finally {
                     log.Close();
+                    errorLog.Close();
                 }
             }
             foreach (string s in loggingExc) {
